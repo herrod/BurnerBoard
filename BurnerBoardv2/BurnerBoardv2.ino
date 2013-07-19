@@ -16,6 +16,8 @@
 
 *****************************************************************************/
 
+
+// Burner board is not using this: we are using Hardware SPI for performance
 // Choose which 2 pins you will use for output.
 // Can be any valid output pins.
 // The colors of the wires may be totally different so
@@ -29,7 +31,7 @@ uint8_t clockPin = 3;    // Green wire on Adafruit Pixels
 // Set the first variable to the NUMBER of pixels in a row and
 // the second value to number of pixels in a column.
 //Board_WS2801 strip = Board_WS2801((uint16_t)10, (uint16_t)70, dataPin, clockPin);
-Board_WS2801 strip = Board_WS2801((uint16_t)10, (uint16_t)70);
+Board_WS2801 strip = Board_WS2801((uint16_t)10, (uint16_t)70, WS2801_RGB);
 
 uint8_t led[8];
 uint8_t ledo[8];
@@ -38,15 +40,23 @@ uint8_t ledn[8];
 #define RGB_MAX 255
 #define RGB_DIM 100  
 
+#define BATTERY_PIN A0
+
 uint8_t row;
 uint8_t invader;
 
 
-
 void setup() {
+  
+  uint16_t i;
+  
   // Console for debugging
   Serial.begin(9600);
   Serial.println("Goodnight moon!");
+  
+  // Set battery level analogue reference
+  analogReference(INTERNAL1V1);
+  pinMode(BATTERY_PIN, INPUT);
   
   /*
   for (uint16_t i = 0; i < 544; i++) {
@@ -84,42 +94,26 @@ ledn[7] = B00100100;
   
   invader = 0;
 
-  // Update LED contents, to start they are all 'off'wqw
+  // Update LED contents, to start they are all 'off'
+  ClearScreen();
   strip.show();
+  
+  //bounce(10, 70, 0);
+
+  DrawBattery();
+  delay(10000);
+ 
+  ClearScreen();
 }
 
 int16_t loopcnt = 0;
 
 void loop() {
-  // Some example procedures showing how to display to the pixels
-
-  //drawX(10, 70, 0);
-
-
-  if (loopcnt < 2) {
-    bounce(10, 70, 0);
-  }
-  
-  if (loopcnt > 2 && loopcnt < 39 ) {  
-    drawHeader();
-    ShiftMatrixLines(); 
-  } 
-  
-  if (loopcnt > 39) {  
-   drawUSflag();
-  }
-  
-  
-  //lines(39);
-  
-/*
   drawHeader();
-  delay(20);
-  ShiftMatrixLines();
-  delay(10000);
+  ShiftMatrixLines();  
+  uint16_t i;
 
-*/
-
+//   drawUSflag();
 
 /*
   drawInvader(invader);
@@ -132,8 +126,14 @@ void loop() {
     }
 */
 
+  if (loopcnt == 500) {
+    loopcnt = 0;
+    DrawBattery();
+    delay(2000);
+    ClearScreen();
+  }
+  
   loopcnt++;
-
    
 }
 
@@ -268,6 +268,110 @@ void drawHeader() {
  strip.show();
 }
 
+#define LEVEL_EMPTY 25886
+#define LEVEL_FULL 30400
+
+// = 90% = 30350
+// 36.0v = 50% = 29606
+// 35.6v = 40% = 28862
+// 10% = 25886
+
+// Battery Level Meter
+// This is a simple starting point
+// Todo: Sample the battery level continously and maintain a rolling average
+//       This will help with the varying voltages as motor load changes, which
+//       will result in varing results depending on load with this current code
+//
+void DrawBattery() {
+  uint32_t color;
+  uint16_t x;
+  uint8_t row;
+  uint32_t level = 0;
+  uint16_t i;
+  uint16_t sample;
+  
+  // Read Battery Level
+  // 18 * 1.75v = 31.5v for low voltage
+  // Set zero to 30v
+  // Set 100% to 38v
+
+    // Clear screen and measure voltage, since screen load varies it!
+  ClearScreen();
+  strip.show();
+  delay(1000);
+  
+  // Convert to level 0-28
+  for (i = 0; i < 100; i++) {
+    level += sample = analogRead(BATTERY_PIN);
+  Serial.print("Battery sample ");
+  Serial.print(sample, DEC);
+  Serial.println(" ");
+  }
+  Serial.print("Battery Level ");
+  Serial.print(level, DEC);
+  Serial.println(" ");
+  
+  if (level > LEVEL_FULL) {
+    level = LEVEL_FULL;
+  }
+
+  // Sometimes noise makes level just below zero
+  if (level > LEVEL_EMPTY) {
+    level -= LEVEL_EMPTY;
+  } else {
+    level = 0;
+  }
+
+  
+  level *= 28;
+    
+  level = level / (LEVEL_FULL - LEVEL_EMPTY);
+  
+  Serial.print("Adjusted Level ");
+  Serial.print(level, DEC);
+  Serial.println(" ");
+  
+
+  
+  row = 20;
+  
+  // White Battery Shell with Green level
+  
+  // Battery Bottom
+  for (x = 0; x < 10; x++) {
+    strip.setPixelColor(x, row, Color(RGB_MAX, RGB_MAX, RGB_MAX));
+  }
+  row++;
+  
+  // Battery Sides
+  for (; row < 49; row++) {
+    strip.setPixelColor(0, row, Color(RGB_MAX, RGB_MAX, RGB_MAX));
+    strip.setPixelColor(9, row, Color(RGB_MAX, RGB_MAX, RGB_MAX));
+  }
+  
+  // Battery Top
+  for (x = 0; x < 10; x++) {
+    strip.setPixelColor(x, row, Color(RGB_MAX, RGB_MAX, RGB_MAX));
+  }
+  row++;
+  
+  // Battery button
+  for (x = 3; x < 7; x++) {
+    strip.setPixelColor(x, row, Color(RGB_MAX, RGB_MAX, RGB_MAX));
+    strip.setPixelColor(x, row+1, Color(RGB_MAX, RGB_MAX, RGB_MAX));
+  }
+  row+=2;
+  
+  // Battery Level
+  for (row = 21; row < 21 + level; row++) {
+    for (x = 1; x < 9; x++) {
+        strip.setPixelColor(x, row, Color(0, RGB_DIM, 0));
+    }
+  }
+  
+  strip.show();
+}
+
 //Shift Matrixrow down
 void ShiftMatrixLines()
 {
@@ -281,6 +385,20 @@ void ShiftMatrixLines()
     }
   }
   delay(50);
+}
+
+// Clear Screen
+void ClearScreen()
+{
+  uint16_t x, y;
+  
+  for(y = 0; y < 70; y++)
+  {
+    for(byte x = 0; x < 10;x++)
+    {
+         strip.setPixelColor(x, y, Color(0, 0, 0));         
+    }
+  }
 }
 
 void lines(uint8_t wait) {
