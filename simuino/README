@@ -1,0 +1,26 @@
+
+Quick startup/demo
+1. Run ./simuinio
+2. Type load
+3. Type run
+4. Press h to see options
+5. Press R to run first loop
+6. Press r continuously to iterate through loops
+
+Updating the Board code
+1. Edit BurnerBoardv2.ino
+2. Go to step 1 above
+
+
+Updating from another code
+1. Copy the .ino file from Ardunio into this directory
+2. Add this line near the start of your file
+// BOARD_TYPE   MEGA
+3. Create a .conf file like bb.conf with your project name.conf
+4. ./simuino
+5. Type list
+6. Select your .conf by number
+7. Goto step 2 at top
+(if Err shows, type err to see the errors in your .ino code)
+
+

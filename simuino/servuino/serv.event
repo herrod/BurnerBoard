@@ -1,0 +1,1003 @@
+# Servuino Event Log Version: 0.1.2
+#// BOARD_TYPE   MEGA
++ 1 ? setup
++ 2 ? Serial.begin baud=9600
++ 3 ? Serial.println(char) Goodnight moon!
++ 4 ? pinMode pin=30 OUTPUT
++ 5 ? digitalWrite pin=30 value=1
++ 6 ? pinMode pin=30 OUTPUT
++ 7 ? digitalWrite pin=30 value=1
++ 8 ? delay 1000 ms
++ 9 ? analogRead pin=0 value=300
++ 10 ? analogRead pin=0 value=300
++ 11 ? analogRead pin=0 value=300
++ 12 ? analogRead pin=0 value=300
++ 13 ? analogRead pin=0 value=300
++ 14 ? analogRead pin=0 value=300
++ 15 ? analogRead pin=0 value=300
++ 16 ? analogRead pin=0 value=300
++ 17 ? analogRead pin=0 value=300
++ 18 ? analogRead pin=0 value=300
++ 19 ? pinMode pin=30 OUTPUT
++ 20 ? digitalWrite pin=30 value=1
++ 21 ? servuinoLoop 1
++ 22 ? pinMode pin=30 OUTPUT
++ 23 ? digitalWrite pin=30 value=1
++ 24 ? delay 50 ms
++ 25 ? servuinoLoop 2
++ 26 ? pinMode pin=30 OUTPUT
++ 27 ? digitalWrite pin=30 value=1
++ 28 ? delay 50 ms
++ 29 ? servuinoLoop 3
++ 30 ? pinMode pin=30 OUTPUT
++ 31 ? digitalWrite pin=30 value=1
++ 32 ? delay 50 ms
++ 33 ? servuinoLoop 4
++ 34 ? pinMode pin=30 OUTPUT
++ 35 ? digitalWrite pin=30 value=1
++ 36 ? delay 50 ms
++ 37 ? servuinoLoop 5
++ 38 ? pinMode pin=30 OUTPUT
++ 39 ? digitalWrite pin=30 value=1
++ 40 ? delay 50 ms
++ 41 ? servuinoLoop 6
++ 42 ? pinMode pin=30 OUTPUT
++ 43 ? digitalWrite pin=30 value=1
++ 44 ? delay 50 ms
++ 45 ? servuinoLoop 7
++ 46 ? pinMode pin=30 OUTPUT
++ 47 ? digitalWrite pin=30 value=1
++ 48 ? delay 50 ms
++ 49 ? servuinoLoop 8
++ 50 ? pinMode pin=30 OUTPUT
++ 51 ? digitalWrite pin=30 value=1
++ 52 ? delay 50 ms
++ 53 ? servuinoLoop 9
++ 54 ? pinMode pin=30 OUTPUT
++ 55 ? digitalWrite pin=30 value=1
++ 56 ? delay 50 ms
++ 57 ? servuinoLoop 10
++ 58 ? pinMode pin=30 OUTPUT
++ 59 ? digitalWrite pin=30 value=1
++ 60 ? delay 50 ms
++ 61 ? servuinoLoop 11
++ 62 ? pinMode pin=30 OUTPUT
++ 63 ? digitalWrite pin=30 value=1
++ 64 ? delay 50 ms
++ 65 ? servuinoLoop 12
++ 66 ? pinMode pin=30 OUTPUT
++ 67 ? digitalWrite pin=30 value=1
++ 68 ? delay 50 ms
++ 69 ? servuinoLoop 13
++ 70 ? pinMode pin=30 OUTPUT
++ 71 ? digitalWrite pin=30 value=1
++ 72 ? delay 50 ms
++ 73 ? servuinoLoop 14
++ 74 ? pinMode pin=30 OUTPUT
++ 75 ? digitalWrite pin=30 value=1
++ 76 ? delay 50 ms
++ 77 ? servuinoLoop 15
++ 78 ? pinMode pin=30 OUTPUT
++ 79 ? digitalWrite pin=30 value=1
++ 80 ? delay 50 ms
++ 81 ? servuinoLoop 16
++ 82 ? pinMode pin=30 OUTPUT
++ 83 ? digitalWrite pin=30 value=1
++ 84 ? delay 50 ms
++ 85 ? servuinoLoop 17
++ 86 ? pinMode pin=30 OUTPUT
++ 87 ? digitalWrite pin=30 value=1
++ 88 ? delay 50 ms
++ 89 ? servuinoLoop 18
++ 90 ? pinMode pin=30 OUTPUT
++ 91 ? digitalWrite pin=30 value=1
++ 92 ? delay 50 ms
++ 93 ? servuinoLoop 19
++ 94 ? pinMode pin=30 OUTPUT
++ 95 ? digitalWrite pin=30 value=1
++ 96 ? delay 50 ms
++ 97 ? servuinoLoop 20
++ 98 ? pinMode pin=30 OUTPUT
++ 99 ? digitalWrite pin=30 value=1
++ 100 ? delay 50 ms
++ 101 ? servuinoLoop 21
++ 102 ? pinMode pin=30 OUTPUT
++ 103 ? digitalWrite pin=30 value=1
++ 104 ? delay 50 ms
++ 105 ? servuinoLoop 22
++ 106 ? pinMode pin=30 OUTPUT
++ 107 ? digitalWrite pin=30 value=1
++ 108 ? delay 50 ms
++ 109 ? servuinoLoop 23
++ 110 ? pinMode pin=30 OUTPUT
++ 111 ? digitalWrite pin=30 value=1
++ 112 ? delay 50 ms
++ 113 ? servuinoLoop 24
++ 114 ? pinMode pin=30 OUTPUT
++ 115 ? digitalWrite pin=30 value=1
++ 116 ? delay 50 ms
++ 117 ? servuinoLoop 25
++ 118 ? pinMode pin=30 OUTPUT
++ 119 ? digitalWrite pin=30 value=1
++ 120 ? delay 50 ms
++ 121 ? servuinoLoop 26
++ 122 ? pinMode pin=30 OUTPUT
++ 123 ? digitalWrite pin=30 value=1
++ 124 ? delay 50 ms
++ 125 ? servuinoLoop 27
++ 126 ? pinMode pin=30 OUTPUT
++ 127 ? digitalWrite pin=30 value=1
++ 128 ? delay 50 ms
++ 129 ? servuinoLoop 28
++ 130 ? pinMode pin=30 OUTPUT
++ 131 ? digitalWrite pin=30 value=1
++ 132 ? delay 50 ms
++ 133 ? servuinoLoop 29
++ 134 ? pinMode pin=30 OUTPUT
++ 135 ? digitalWrite pin=30 value=1
++ 136 ? delay 50 ms
++ 137 ? servuinoLoop 30
++ 138 ? pinMode pin=30 OUTPUT
++ 139 ? digitalWrite pin=30 value=1
++ 140 ? delay 50 ms
++ 141 ? servuinoLoop 31
++ 142 ? pinMode pin=30 OUTPUT
++ 143 ? digitalWrite pin=30 value=1
++ 144 ? delay 50 ms
++ 145 ? servuinoLoop 32
++ 146 ? pinMode pin=30 OUTPUT
++ 147 ? digitalWrite pin=30 value=1
++ 148 ? delay 50 ms
++ 149 ? servuinoLoop 33
++ 150 ? pinMode pin=30 OUTPUT
++ 151 ? digitalWrite pin=30 value=1
++ 152 ? delay 50 ms
++ 153 ? servuinoLoop 34
++ 154 ? pinMode pin=30 OUTPUT
++ 155 ? digitalWrite pin=30 value=1
++ 156 ? delay 50 ms
++ 157 ? servuinoLoop 35
++ 158 ? pinMode pin=30 OUTPUT
++ 159 ? digitalWrite pin=30 value=1
++ 160 ? delay 50 ms
++ 161 ? servuinoLoop 36
++ 162 ? pinMode pin=30 OUTPUT
++ 163 ? digitalWrite pin=30 value=1
++ 164 ? delay 50 ms
++ 165 ? servuinoLoop 37
++ 166 ? pinMode pin=30 OUTPUT
++ 167 ? digitalWrite pin=30 value=1
++ 168 ? delay 50 ms
++ 169 ? servuinoLoop 38
++ 170 ? pinMode pin=30 OUTPUT
++ 171 ? digitalWrite pin=30 value=1
++ 172 ? delay 50 ms
++ 173 ? servuinoLoop 39
++ 174 ? pinMode pin=30 OUTPUT
++ 175 ? digitalWrite pin=30 value=1
++ 176 ? delay 50 ms
++ 177 ? servuinoLoop 40
++ 178 ? pinMode pin=30 OUTPUT
++ 179 ? digitalWrite pin=30 value=1
++ 180 ? delay 50 ms
++ 181 ? servuinoLoop 41
++ 182 ? pinMode pin=30 OUTPUT
++ 183 ? digitalWrite pin=30 value=1
++ 184 ? delay 50 ms
++ 185 ? servuinoLoop 42
++ 186 ? pinMode pin=30 OUTPUT
++ 187 ? digitalWrite pin=30 value=1
++ 188 ? delay 50 ms
++ 189 ? servuinoLoop 43
++ 190 ? pinMode pin=30 OUTPUT
++ 191 ? digitalWrite pin=30 value=1
++ 192 ? delay 50 ms
++ 193 ? servuinoLoop 44
++ 194 ? pinMode pin=30 OUTPUT
++ 195 ? digitalWrite pin=30 value=1
++ 196 ? delay 50 ms
++ 197 ? servuinoLoop 45
++ 198 ? pinMode pin=30 OUTPUT
++ 199 ? digitalWrite pin=30 value=1
++ 200 ? delay 50 ms
++ 201 ? servuinoLoop 46
++ 202 ? pinMode pin=30 OUTPUT
++ 203 ? digitalWrite pin=30 value=1
++ 204 ? delay 50 ms
++ 205 ? servuinoLoop 47
++ 206 ? pinMode pin=30 OUTPUT
++ 207 ? digitalWrite pin=30 value=1
++ 208 ? delay 50 ms
++ 209 ? servuinoLoop 48
++ 210 ? pinMode pin=30 OUTPUT
++ 211 ? digitalWrite pin=30 value=1
++ 212 ? delay 50 ms
++ 213 ? servuinoLoop 49
++ 214 ? pinMode pin=30 OUTPUT
++ 215 ? digitalWrite pin=30 value=1
++ 216 ? delay 50 ms
++ 217 ? servuinoLoop 50
++ 218 ? pinMode pin=30 OUTPUT
++ 219 ? digitalWrite pin=30 value=1
++ 220 ? delay 50 ms
++ 221 ? servuinoLoop 51
++ 222 ? pinMode pin=30 OUTPUT
++ 223 ? digitalWrite pin=30 value=1
++ 224 ? delay 50 ms
++ 225 ? servuinoLoop 52
++ 226 ? pinMode pin=30 OUTPUT
++ 227 ? digitalWrite pin=30 value=1
++ 228 ? delay 50 ms
++ 229 ? servuinoLoop 53
++ 230 ? pinMode pin=30 OUTPUT
++ 231 ? digitalWrite pin=30 value=1
++ 232 ? delay 50 ms
++ 233 ? servuinoLoop 54
++ 234 ? pinMode pin=30 OUTPUT
++ 235 ? digitalWrite pin=30 value=1
++ 236 ? delay 50 ms
++ 237 ? servuinoLoop 55
++ 238 ? pinMode pin=30 OUTPUT
++ 239 ? digitalWrite pin=30 value=1
++ 240 ? delay 50 ms
++ 241 ? servuinoLoop 56
++ 242 ? pinMode pin=30 OUTPUT
++ 243 ? digitalWrite pin=30 value=1
++ 244 ? delay 50 ms
++ 245 ? servuinoLoop 57
++ 246 ? pinMode pin=30 OUTPUT
++ 247 ? digitalWrite pin=30 value=1
++ 248 ? delay 50 ms
++ 249 ? servuinoLoop 58
++ 250 ? pinMode pin=30 OUTPUT
++ 251 ? digitalWrite pin=30 value=1
++ 252 ? delay 50 ms
++ 253 ? servuinoLoop 59
++ 254 ? pinMode pin=30 OUTPUT
++ 255 ? digitalWrite pin=30 value=1
++ 256 ? delay 50 ms
++ 257 ? servuinoLoop 60
++ 258 ? pinMode pin=30 OUTPUT
++ 259 ? digitalWrite pin=30 value=1
++ 260 ? delay 50 ms
++ 261 ? servuinoLoop 61
++ 262 ? pinMode pin=30 OUTPUT
++ 263 ? digitalWrite pin=30 value=1
++ 264 ? delay 50 ms
++ 265 ? servuinoLoop 62
++ 266 ? pinMode pin=30 OUTPUT
++ 267 ? digitalWrite pin=30 value=1
++ 268 ? delay 50 ms
++ 269 ? servuinoLoop 63
++ 270 ? pinMode pin=30 OUTPUT
++ 271 ? digitalWrite pin=30 value=1
++ 272 ? delay 50 ms
++ 273 ? servuinoLoop 64
++ 274 ? pinMode pin=30 OUTPUT
++ 275 ? digitalWrite pin=30 value=1
++ 276 ? delay 50 ms
++ 277 ? servuinoLoop 65
++ 278 ? pinMode pin=30 OUTPUT
++ 279 ? digitalWrite pin=30 value=1
++ 280 ? delay 50 ms
++ 281 ? servuinoLoop 66
++ 282 ? pinMode pin=30 OUTPUT
++ 283 ? digitalWrite pin=30 value=1
++ 284 ? delay 50 ms
++ 285 ? servuinoLoop 67
++ 286 ? pinMode pin=30 OUTPUT
++ 287 ? digitalWrite pin=30 value=1
++ 288 ? delay 50 ms
++ 289 ? servuinoLoop 68
++ 290 ? pinMode pin=30 OUTPUT
++ 291 ? digitalWrite pin=30 value=1
++ 292 ? delay 50 ms
++ 293 ? servuinoLoop 69
++ 294 ? pinMode pin=30 OUTPUT
++ 295 ? digitalWrite pin=30 value=1
++ 296 ? delay 50 ms
++ 297 ? servuinoLoop 70
++ 298 ? pinMode pin=30 OUTPUT
++ 299 ? digitalWrite pin=30 value=1
++ 300 ? delay 50 ms
++ 301 ? servuinoLoop 71
++ 302 ? pinMode pin=30 OUTPUT
++ 303 ? digitalWrite pin=30 value=1
++ 304 ? delay 50 ms
++ 305 ? servuinoLoop 72
++ 306 ? pinMode pin=30 OUTPUT
++ 307 ? digitalWrite pin=30 value=1
++ 308 ? delay 50 ms
++ 309 ? servuinoLoop 73
++ 310 ? pinMode pin=30 OUTPUT
++ 311 ? digitalWrite pin=30 value=1
++ 312 ? delay 50 ms
++ 313 ? servuinoLoop 74
++ 314 ? pinMode pin=30 OUTPUT
++ 315 ? digitalWrite pin=30 value=1
++ 316 ? delay 50 ms
++ 317 ? servuinoLoop 75
++ 318 ? pinMode pin=30 OUTPUT
++ 319 ? digitalWrite pin=30 value=1
++ 320 ? delay 50 ms
++ 321 ? servuinoLoop 76
++ 322 ? pinMode pin=30 OUTPUT
++ 323 ? digitalWrite pin=30 value=1
++ 324 ? delay 50 ms
++ 325 ? servuinoLoop 77
++ 326 ? pinMode pin=30 OUTPUT
++ 327 ? digitalWrite pin=30 value=1
++ 328 ? delay 50 ms
++ 329 ? servuinoLoop 78
++ 330 ? pinMode pin=30 OUTPUT
++ 331 ? digitalWrite pin=30 value=1
++ 332 ? delay 50 ms
++ 333 ? servuinoLoop 79
++ 334 ? pinMode pin=30 OUTPUT
++ 335 ? digitalWrite pin=30 value=1
++ 336 ? delay 50 ms
++ 337 ? servuinoLoop 80
++ 338 ? pinMode pin=30 OUTPUT
++ 339 ? digitalWrite pin=30 value=1
++ 340 ? delay 50 ms
++ 341 ? servuinoLoop 81
++ 342 ? pinMode pin=30 OUTPUT
++ 343 ? digitalWrite pin=30 value=1
++ 344 ? delay 50 ms
++ 345 ? servuinoLoop 82
++ 346 ? pinMode pin=30 OUTPUT
++ 347 ? digitalWrite pin=30 value=1
++ 348 ? delay 50 ms
++ 349 ? servuinoLoop 83
++ 350 ? pinMode pin=30 OUTPUT
++ 351 ? digitalWrite pin=30 value=1
++ 352 ? delay 50 ms
++ 353 ? servuinoLoop 84
++ 354 ? pinMode pin=30 OUTPUT
++ 355 ? digitalWrite pin=30 value=1
++ 356 ? delay 50 ms
++ 357 ? servuinoLoop 85
++ 358 ? pinMode pin=30 OUTPUT
++ 359 ? digitalWrite pin=30 value=1
++ 360 ? delay 50 ms
++ 361 ? servuinoLoop 86
++ 362 ? pinMode pin=30 OUTPUT
++ 363 ? digitalWrite pin=30 value=1
++ 364 ? delay 50 ms
++ 365 ? servuinoLoop 87
++ 366 ? pinMode pin=30 OUTPUT
++ 367 ? digitalWrite pin=30 value=1
++ 368 ? delay 50 ms
++ 369 ? servuinoLoop 88
++ 370 ? pinMode pin=30 OUTPUT
++ 371 ? digitalWrite pin=30 value=1
++ 372 ? delay 50 ms
++ 373 ? servuinoLoop 89
++ 374 ? pinMode pin=30 OUTPUT
++ 375 ? digitalWrite pin=30 value=1
++ 376 ? delay 50 ms
++ 377 ? servuinoLoop 90
++ 378 ? pinMode pin=30 OUTPUT
++ 379 ? digitalWrite pin=30 value=1
++ 380 ? delay 50 ms
++ 381 ? servuinoLoop 91
++ 382 ? pinMode pin=30 OUTPUT
++ 383 ? digitalWrite pin=30 value=1
++ 384 ? delay 50 ms
++ 385 ? servuinoLoop 92
++ 386 ? pinMode pin=30 OUTPUT
++ 387 ? digitalWrite pin=30 value=1
++ 388 ? delay 50 ms
++ 389 ? servuinoLoop 93
++ 390 ? pinMode pin=30 OUTPUT
++ 391 ? digitalWrite pin=30 value=1
++ 392 ? delay 50 ms
++ 393 ? servuinoLoop 94
++ 394 ? pinMode pin=30 OUTPUT
++ 395 ? digitalWrite pin=30 value=1
++ 396 ? delay 50 ms
++ 397 ? servuinoLoop 95
++ 398 ? pinMode pin=30 OUTPUT
++ 399 ? digitalWrite pin=30 value=1
++ 400 ? delay 50 ms
++ 401 ? servuinoLoop 96
++ 402 ? pinMode pin=30 OUTPUT
++ 403 ? digitalWrite pin=30 value=1
++ 404 ? delay 50 ms
++ 405 ? servuinoLoop 97
++ 406 ? pinMode pin=30 OUTPUT
++ 407 ? digitalWrite pin=30 value=1
++ 408 ? delay 50 ms
++ 409 ? servuinoLoop 98
++ 410 ? pinMode pin=30 OUTPUT
++ 411 ? digitalWrite pin=30 value=1
++ 412 ? delay 50 ms
++ 413 ? servuinoLoop 99
++ 414 ? pinMode pin=30 OUTPUT
++ 415 ? digitalWrite pin=30 value=1
++ 416 ? delay 50 ms
++ 417 ? servuinoLoop 100
++ 418 ? pinMode pin=30 OUTPUT
++ 419 ? digitalWrite pin=30 value=1
++ 420 ? delay 50 ms
++ 421 ? servuinoLoop 101
++ 422 ? pinMode pin=30 OUTPUT
++ 423 ? digitalWrite pin=30 value=1
++ 424 ? delay 50 ms
++ 425 ? servuinoLoop 102
++ 426 ? pinMode pin=30 OUTPUT
++ 427 ? digitalWrite pin=30 value=1
++ 428 ? delay 50 ms
++ 429 ? servuinoLoop 103
++ 430 ? pinMode pin=30 OUTPUT
++ 431 ? digitalWrite pin=30 value=1
++ 432 ? delay 50 ms
++ 433 ? servuinoLoop 104
++ 434 ? pinMode pin=30 OUTPUT
++ 435 ? digitalWrite pin=30 value=1
++ 436 ? delay 50 ms
++ 437 ? servuinoLoop 105
++ 438 ? pinMode pin=30 OUTPUT
++ 439 ? digitalWrite pin=30 value=1
++ 440 ? delay 50 ms
++ 441 ? servuinoLoop 106
++ 442 ? pinMode pin=30 OUTPUT
++ 443 ? digitalWrite pin=30 value=1
++ 444 ? delay 50 ms
++ 445 ? servuinoLoop 107
++ 446 ? pinMode pin=30 OUTPUT
++ 447 ? digitalWrite pin=30 value=1
++ 448 ? delay 50 ms
++ 449 ? servuinoLoop 108
++ 450 ? pinMode pin=30 OUTPUT
++ 451 ? digitalWrite pin=30 value=1
++ 452 ? delay 50 ms
++ 453 ? servuinoLoop 109
++ 454 ? pinMode pin=30 OUTPUT
++ 455 ? digitalWrite pin=30 value=1
++ 456 ? delay 50 ms
++ 457 ? servuinoLoop 110
++ 458 ? pinMode pin=30 OUTPUT
++ 459 ? digitalWrite pin=30 value=1
++ 460 ? delay 50 ms
++ 461 ? servuinoLoop 111
++ 462 ? pinMode pin=30 OUTPUT
++ 463 ? digitalWrite pin=30 value=1
++ 464 ? delay 50 ms
++ 465 ? servuinoLoop 112
++ 466 ? pinMode pin=30 OUTPUT
++ 467 ? digitalWrite pin=30 value=1
++ 468 ? delay 50 ms
++ 469 ? servuinoLoop 113
++ 470 ? pinMode pin=30 OUTPUT
++ 471 ? digitalWrite pin=30 value=1
++ 472 ? delay 50 ms
++ 473 ? servuinoLoop 114
++ 474 ? pinMode pin=30 OUTPUT
++ 475 ? digitalWrite pin=30 value=1
++ 476 ? delay 50 ms
++ 477 ? servuinoLoop 115
++ 478 ? pinMode pin=30 OUTPUT
++ 479 ? digitalWrite pin=30 value=1
++ 480 ? delay 50 ms
++ 481 ? servuinoLoop 116
++ 482 ? pinMode pin=30 OUTPUT
++ 483 ? digitalWrite pin=30 value=1
++ 484 ? delay 50 ms
++ 485 ? servuinoLoop 117
++ 486 ? pinMode pin=30 OUTPUT
++ 487 ? digitalWrite pin=30 value=1
++ 488 ? delay 50 ms
++ 489 ? servuinoLoop 118
++ 490 ? pinMode pin=30 OUTPUT
++ 491 ? digitalWrite pin=30 value=1
++ 492 ? delay 50 ms
++ 493 ? servuinoLoop 119
++ 494 ? pinMode pin=30 OUTPUT
++ 495 ? digitalWrite pin=30 value=1
++ 496 ? delay 50 ms
++ 497 ? servuinoLoop 120
++ 498 ? pinMode pin=30 OUTPUT
++ 499 ? digitalWrite pin=30 value=1
++ 500 ? delay 50 ms
++ 501 ? servuinoLoop 121
++ 502 ? pinMode pin=30 OUTPUT
++ 503 ? digitalWrite pin=30 value=1
++ 504 ? delay 50 ms
++ 505 ? servuinoLoop 122
++ 506 ? pinMode pin=30 OUTPUT
++ 507 ? digitalWrite pin=30 value=1
++ 508 ? delay 50 ms
++ 509 ? servuinoLoop 123
++ 510 ? pinMode pin=30 OUTPUT
++ 511 ? digitalWrite pin=30 value=1
++ 512 ? delay 50 ms
++ 513 ? servuinoLoop 124
++ 514 ? pinMode pin=30 OUTPUT
++ 515 ? digitalWrite pin=30 value=1
++ 516 ? delay 50 ms
++ 517 ? servuinoLoop 125
++ 518 ? pinMode pin=30 OUTPUT
++ 519 ? digitalWrite pin=30 value=1
++ 520 ? delay 50 ms
++ 521 ? servuinoLoop 126
++ 522 ? pinMode pin=30 OUTPUT
++ 523 ? digitalWrite pin=30 value=1
++ 524 ? delay 50 ms
++ 525 ? servuinoLoop 127
++ 526 ? pinMode pin=30 OUTPUT
++ 527 ? digitalWrite pin=30 value=1
++ 528 ? delay 50 ms
++ 529 ? servuinoLoop 128
++ 530 ? pinMode pin=30 OUTPUT
++ 531 ? digitalWrite pin=30 value=1
++ 532 ? delay 50 ms
++ 533 ? servuinoLoop 129
++ 534 ? pinMode pin=30 OUTPUT
++ 535 ? digitalWrite pin=30 value=1
++ 536 ? delay 50 ms
++ 537 ? servuinoLoop 130
++ 538 ? pinMode pin=30 OUTPUT
++ 539 ? digitalWrite pin=30 value=1
++ 540 ? delay 50 ms
++ 541 ? servuinoLoop 131
++ 542 ? pinMode pin=30 OUTPUT
++ 543 ? digitalWrite pin=30 value=1
++ 544 ? delay 50 ms
++ 545 ? servuinoLoop 132
++ 546 ? pinMode pin=30 OUTPUT
++ 547 ? digitalWrite pin=30 value=1
++ 548 ? delay 50 ms
++ 549 ? servuinoLoop 133
++ 550 ? pinMode pin=30 OUTPUT
++ 551 ? digitalWrite pin=30 value=1
++ 552 ? delay 50 ms
++ 553 ? servuinoLoop 134
++ 554 ? pinMode pin=30 OUTPUT
++ 555 ? digitalWrite pin=30 value=1
++ 556 ? delay 50 ms
++ 557 ? servuinoLoop 135
++ 558 ? pinMode pin=30 OUTPUT
++ 559 ? digitalWrite pin=30 value=1
++ 560 ? delay 50 ms
++ 561 ? servuinoLoop 136
++ 562 ? pinMode pin=30 OUTPUT
++ 563 ? digitalWrite pin=30 value=1
++ 564 ? delay 50 ms
++ 565 ? servuinoLoop 137
++ 566 ? pinMode pin=30 OUTPUT
++ 567 ? digitalWrite pin=30 value=1
++ 568 ? delay 50 ms
++ 569 ? servuinoLoop 138
++ 570 ? pinMode pin=30 OUTPUT
++ 571 ? digitalWrite pin=30 value=1
++ 572 ? delay 50 ms
++ 573 ? servuinoLoop 139
++ 574 ? pinMode pin=30 OUTPUT
++ 575 ? digitalWrite pin=30 value=1
++ 576 ? delay 50 ms
++ 577 ? servuinoLoop 140
++ 578 ? pinMode pin=30 OUTPUT
++ 579 ? digitalWrite pin=30 value=1
++ 580 ? delay 50 ms
++ 581 ? servuinoLoop 141
++ 582 ? pinMode pin=30 OUTPUT
++ 583 ? digitalWrite pin=30 value=1
++ 584 ? delay 50 ms
++ 585 ? servuinoLoop 142
++ 586 ? pinMode pin=30 OUTPUT
++ 587 ? digitalWrite pin=30 value=1
++ 588 ? delay 50 ms
++ 589 ? servuinoLoop 143
++ 590 ? pinMode pin=30 OUTPUT
++ 591 ? digitalWrite pin=30 value=1
++ 592 ? delay 50 ms
++ 593 ? servuinoLoop 144
++ 594 ? pinMode pin=30 OUTPUT
++ 595 ? digitalWrite pin=30 value=1
++ 596 ? delay 50 ms
++ 597 ? servuinoLoop 145
++ 598 ? pinMode pin=30 OUTPUT
++ 599 ? digitalWrite pin=30 value=1
++ 600 ? delay 50 ms
++ 601 ? servuinoLoop 146
++ 602 ? pinMode pin=30 OUTPUT
++ 603 ? digitalWrite pin=30 value=1
++ 604 ? delay 50 ms
++ 605 ? servuinoLoop 147
++ 606 ? pinMode pin=30 OUTPUT
++ 607 ? digitalWrite pin=30 value=1
++ 608 ? delay 50 ms
++ 609 ? servuinoLoop 148
++ 610 ? pinMode pin=30 OUTPUT
++ 611 ? digitalWrite pin=30 value=1
++ 612 ? delay 50 ms
++ 613 ? servuinoLoop 149
++ 614 ? pinMode pin=30 OUTPUT
++ 615 ? digitalWrite pin=30 value=1
++ 616 ? delay 50 ms
++ 617 ? servuinoLoop 150
++ 618 ? pinMode pin=30 OUTPUT
++ 619 ? digitalWrite pin=30 value=1
++ 620 ? delay 50 ms
++ 621 ? servuinoLoop 151
++ 622 ? pinMode pin=30 OUTPUT
++ 623 ? digitalWrite pin=30 value=1
++ 624 ? delay 50 ms
++ 625 ? servuinoLoop 152
++ 626 ? pinMode pin=30 OUTPUT
++ 627 ? digitalWrite pin=30 value=1
++ 628 ? delay 50 ms
++ 629 ? servuinoLoop 153
++ 630 ? pinMode pin=30 OUTPUT
++ 631 ? digitalWrite pin=30 value=1
++ 632 ? delay 50 ms
++ 633 ? servuinoLoop 154
++ 634 ? pinMode pin=30 OUTPUT
++ 635 ? digitalWrite pin=30 value=1
++ 636 ? delay 50 ms
++ 637 ? servuinoLoop 155
++ 638 ? pinMode pin=30 OUTPUT
++ 639 ? digitalWrite pin=30 value=1
++ 640 ? delay 50 ms
++ 641 ? servuinoLoop 156
++ 642 ? pinMode pin=30 OUTPUT
++ 643 ? digitalWrite pin=30 value=1
++ 644 ? delay 50 ms
++ 645 ? servuinoLoop 157
++ 646 ? pinMode pin=30 OUTPUT
++ 647 ? digitalWrite pin=30 value=1
++ 648 ? delay 50 ms
++ 649 ? servuinoLoop 158
++ 650 ? pinMode pin=30 OUTPUT
++ 651 ? digitalWrite pin=30 value=1
++ 652 ? delay 50 ms
++ 653 ? servuinoLoop 159
++ 654 ? pinMode pin=30 OUTPUT
++ 655 ? digitalWrite pin=30 value=1
++ 656 ? delay 50 ms
++ 657 ? servuinoLoop 160
++ 658 ? pinMode pin=30 OUTPUT
++ 659 ? digitalWrite pin=30 value=1
++ 660 ? delay 50 ms
++ 661 ? servuinoLoop 161
++ 662 ? pinMode pin=30 OUTPUT
++ 663 ? digitalWrite pin=30 value=1
++ 664 ? delay 50 ms
++ 665 ? servuinoLoop 162
++ 666 ? pinMode pin=30 OUTPUT
++ 667 ? digitalWrite pin=30 value=1
++ 668 ? delay 50 ms
++ 669 ? servuinoLoop 163
++ 670 ? pinMode pin=30 OUTPUT
++ 671 ? digitalWrite pin=30 value=1
++ 672 ? delay 50 ms
++ 673 ? servuinoLoop 164
++ 674 ? pinMode pin=30 OUTPUT
++ 675 ? digitalWrite pin=30 value=1
++ 676 ? delay 50 ms
++ 677 ? servuinoLoop 165
++ 678 ? pinMode pin=30 OUTPUT
++ 679 ? digitalWrite pin=30 value=1
++ 680 ? delay 50 ms
++ 681 ? servuinoLoop 166
++ 682 ? pinMode pin=30 OUTPUT
++ 683 ? digitalWrite pin=30 value=1
++ 684 ? delay 50 ms
++ 685 ? servuinoLoop 167
++ 686 ? pinMode pin=30 OUTPUT
++ 687 ? digitalWrite pin=30 value=1
++ 688 ? delay 50 ms
++ 689 ? servuinoLoop 168
++ 690 ? pinMode pin=30 OUTPUT
++ 691 ? digitalWrite pin=30 value=1
++ 692 ? delay 50 ms
++ 693 ? servuinoLoop 169
++ 694 ? pinMode pin=30 OUTPUT
++ 695 ? digitalWrite pin=30 value=1
++ 696 ? delay 50 ms
++ 697 ? servuinoLoop 170
++ 698 ? pinMode pin=30 OUTPUT
++ 699 ? digitalWrite pin=30 value=1
++ 700 ? delay 50 ms
++ 701 ? servuinoLoop 171
++ 702 ? pinMode pin=30 OUTPUT
++ 703 ? digitalWrite pin=30 value=1
++ 704 ? delay 50 ms
++ 705 ? servuinoLoop 172
++ 706 ? pinMode pin=30 OUTPUT
++ 707 ? digitalWrite pin=30 value=1
++ 708 ? delay 50 ms
++ 709 ? servuinoLoop 173
++ 710 ? pinMode pin=30 OUTPUT
++ 711 ? digitalWrite pin=30 value=1
++ 712 ? delay 50 ms
++ 713 ? servuinoLoop 174
++ 714 ? pinMode pin=30 OUTPUT
++ 715 ? digitalWrite pin=30 value=1
++ 716 ? delay 50 ms
++ 717 ? servuinoLoop 175
++ 718 ? pinMode pin=30 OUTPUT
++ 719 ? digitalWrite pin=30 value=1
++ 720 ? delay 50 ms
++ 721 ? servuinoLoop 176
++ 722 ? pinMode pin=30 OUTPUT
++ 723 ? digitalWrite pin=30 value=1
++ 724 ? delay 50 ms
++ 725 ? servuinoLoop 177
++ 726 ? pinMode pin=30 OUTPUT
++ 727 ? digitalWrite pin=30 value=1
++ 728 ? delay 50 ms
++ 729 ? servuinoLoop 178
++ 730 ? pinMode pin=30 OUTPUT
++ 731 ? digitalWrite pin=30 value=1
++ 732 ? delay 50 ms
++ 733 ? servuinoLoop 179
++ 734 ? pinMode pin=30 OUTPUT
++ 735 ? digitalWrite pin=30 value=1
++ 736 ? delay 50 ms
++ 737 ? servuinoLoop 180
++ 738 ? pinMode pin=30 OUTPUT
++ 739 ? digitalWrite pin=30 value=1
++ 740 ? delay 50 ms
++ 741 ? servuinoLoop 181
++ 742 ? pinMode pin=30 OUTPUT
++ 743 ? digitalWrite pin=30 value=1
++ 744 ? delay 50 ms
++ 745 ? servuinoLoop 182
++ 746 ? pinMode pin=30 OUTPUT
++ 747 ? digitalWrite pin=30 value=1
++ 748 ? delay 50 ms
++ 749 ? servuinoLoop 183
++ 750 ? pinMode pin=30 OUTPUT
++ 751 ? digitalWrite pin=30 value=1
++ 752 ? delay 50 ms
++ 753 ? servuinoLoop 184
++ 754 ? pinMode pin=30 OUTPUT
++ 755 ? digitalWrite pin=30 value=1
++ 756 ? delay 50 ms
++ 757 ? servuinoLoop 185
++ 758 ? pinMode pin=30 OUTPUT
++ 759 ? digitalWrite pin=30 value=1
++ 760 ? delay 50 ms
++ 761 ? servuinoLoop 186
++ 762 ? pinMode pin=30 OUTPUT
++ 763 ? digitalWrite pin=30 value=1
++ 764 ? delay 50 ms
++ 765 ? servuinoLoop 187
++ 766 ? pinMode pin=30 OUTPUT
++ 767 ? digitalWrite pin=30 value=1
++ 768 ? delay 50 ms
++ 769 ? servuinoLoop 188
++ 770 ? pinMode pin=30 OUTPUT
++ 771 ? digitalWrite pin=30 value=1
++ 772 ? delay 50 ms
++ 773 ? servuinoLoop 189
++ 774 ? pinMode pin=30 OUTPUT
++ 775 ? digitalWrite pin=30 value=1
++ 776 ? delay 50 ms
++ 777 ? servuinoLoop 190
++ 778 ? pinMode pin=30 OUTPUT
++ 779 ? digitalWrite pin=30 value=1
++ 780 ? delay 50 ms
++ 781 ? servuinoLoop 191
++ 782 ? pinMode pin=30 OUTPUT
++ 783 ? digitalWrite pin=30 value=1
++ 784 ? delay 50 ms
++ 785 ? servuinoLoop 192
++ 786 ? pinMode pin=30 OUTPUT
++ 787 ? digitalWrite pin=30 value=1
++ 788 ? delay 50 ms
++ 789 ? servuinoLoop 193
++ 790 ? pinMode pin=30 OUTPUT
++ 791 ? digitalWrite pin=30 value=1
++ 792 ? delay 50 ms
++ 793 ? servuinoLoop 194
++ 794 ? pinMode pin=30 OUTPUT
++ 795 ? digitalWrite pin=30 value=1
++ 796 ? delay 50 ms
++ 797 ? servuinoLoop 195
++ 798 ? pinMode pin=30 OUTPUT
++ 799 ? digitalWrite pin=30 value=1
++ 800 ? delay 50 ms
++ 801 ? servuinoLoop 196
++ 802 ? pinMode pin=30 OUTPUT
++ 803 ? digitalWrite pin=30 value=1
++ 804 ? delay 50 ms
++ 805 ? servuinoLoop 197
++ 806 ? pinMode pin=30 OUTPUT
++ 807 ? digitalWrite pin=30 value=1
++ 808 ? delay 50 ms
++ 809 ? servuinoLoop 198
++ 810 ? pinMode pin=30 OUTPUT
++ 811 ? digitalWrite pin=30 value=1
++ 812 ? delay 50 ms
++ 813 ? servuinoLoop 199
++ 814 ? pinMode pin=30 OUTPUT
++ 815 ? digitalWrite pin=30 value=1
++ 816 ? delay 50 ms
++ 817 ? servuinoLoop 200
++ 818 ? pinMode pin=30 OUTPUT
++ 819 ? digitalWrite pin=30 value=1
++ 820 ? delay 50 ms
++ 821 ? servuinoLoop 201
++ 822 ? pinMode pin=30 OUTPUT
++ 823 ? digitalWrite pin=30 value=1
++ 824 ? delay 50 ms
++ 825 ? servuinoLoop 202
++ 826 ? pinMode pin=30 OUTPUT
++ 827 ? digitalWrite pin=30 value=1
++ 828 ? delay 50 ms
++ 829 ? servuinoLoop 203
++ 830 ? pinMode pin=30 OUTPUT
++ 831 ? digitalWrite pin=30 value=1
++ 832 ? delay 50 ms
++ 833 ? servuinoLoop 204
++ 834 ? pinMode pin=30 OUTPUT
++ 835 ? digitalWrite pin=30 value=1
++ 836 ? delay 50 ms
++ 837 ? servuinoLoop 205
++ 838 ? pinMode pin=30 OUTPUT
++ 839 ? digitalWrite pin=30 value=1
++ 840 ? delay 50 ms
++ 841 ? servuinoLoop 206
++ 842 ? pinMode pin=30 OUTPUT
++ 843 ? digitalWrite pin=30 value=1
++ 844 ? delay 50 ms
++ 845 ? servuinoLoop 207
++ 846 ? pinMode pin=30 OUTPUT
++ 847 ? digitalWrite pin=30 value=1
++ 848 ? delay 50 ms
++ 849 ? servuinoLoop 208
++ 850 ? pinMode pin=30 OUTPUT
++ 851 ? digitalWrite pin=30 value=1
++ 852 ? delay 50 ms
++ 853 ? servuinoLoop 209
++ 854 ? pinMode pin=30 OUTPUT
++ 855 ? digitalWrite pin=30 value=1
++ 856 ? delay 50 ms
++ 857 ? servuinoLoop 210
++ 858 ? pinMode pin=30 OUTPUT
++ 859 ? digitalWrite pin=30 value=1
++ 860 ? delay 50 ms
++ 861 ? servuinoLoop 211
++ 862 ? pinMode pin=30 OUTPUT
++ 863 ? digitalWrite pin=30 value=1
++ 864 ? delay 50 ms
++ 865 ? servuinoLoop 212
++ 866 ? pinMode pin=30 OUTPUT
++ 867 ? digitalWrite pin=30 value=1
++ 868 ? delay 50 ms
++ 869 ? servuinoLoop 213
++ 870 ? pinMode pin=30 OUTPUT
++ 871 ? digitalWrite pin=30 value=1
++ 872 ? delay 50 ms
++ 873 ? servuinoLoop 214
++ 874 ? pinMode pin=30 OUTPUT
++ 875 ? digitalWrite pin=30 value=1
++ 876 ? delay 50 ms
++ 877 ? servuinoLoop 215
++ 878 ? pinMode pin=30 OUTPUT
++ 879 ? digitalWrite pin=30 value=1
++ 880 ? delay 50 ms
++ 881 ? servuinoLoop 216
++ 882 ? pinMode pin=30 OUTPUT
++ 883 ? digitalWrite pin=30 value=1
++ 884 ? delay 50 ms
++ 885 ? servuinoLoop 217
++ 886 ? pinMode pin=30 OUTPUT
++ 887 ? digitalWrite pin=30 value=1
++ 888 ? delay 50 ms
++ 889 ? servuinoLoop 218
++ 890 ? pinMode pin=30 OUTPUT
++ 891 ? digitalWrite pin=30 value=1
++ 892 ? delay 50 ms
++ 893 ? servuinoLoop 219
++ 894 ? pinMode pin=30 OUTPUT
++ 895 ? digitalWrite pin=30 value=1
++ 896 ? delay 50 ms
++ 897 ? servuinoLoop 220
++ 898 ? pinMode pin=30 OUTPUT
++ 899 ? digitalWrite pin=30 value=1
++ 900 ? delay 50 ms
++ 901 ? servuinoLoop 221
++ 902 ? pinMode pin=30 OUTPUT
++ 903 ? digitalWrite pin=30 value=1
++ 904 ? delay 50 ms
++ 905 ? servuinoLoop 222
++ 906 ? pinMode pin=30 OUTPUT
++ 907 ? digitalWrite pin=30 value=1
++ 908 ? delay 50 ms
++ 909 ? servuinoLoop 223
++ 910 ? pinMode pin=30 OUTPUT
++ 911 ? digitalWrite pin=30 value=1
++ 912 ? delay 50 ms
++ 913 ? servuinoLoop 224
++ 914 ? pinMode pin=30 OUTPUT
++ 915 ? digitalWrite pin=30 value=1
++ 916 ? delay 50 ms
++ 917 ? servuinoLoop 225
++ 918 ? pinMode pin=30 OUTPUT
++ 919 ? digitalWrite pin=30 value=1
++ 920 ? delay 50 ms
++ 921 ? servuinoLoop 226
++ 922 ? pinMode pin=30 OUTPUT
++ 923 ? digitalWrite pin=30 value=1
++ 924 ? delay 50 ms
++ 925 ? servuinoLoop 227
++ 926 ? pinMode pin=30 OUTPUT
++ 927 ? digitalWrite pin=30 value=1
++ 928 ? delay 50 ms
++ 929 ? servuinoLoop 228
++ 930 ? pinMode pin=30 OUTPUT
++ 931 ? digitalWrite pin=30 value=1
++ 932 ? delay 50 ms
++ 933 ? servuinoLoop 229
++ 934 ? pinMode pin=30 OUTPUT
++ 935 ? digitalWrite pin=30 value=1
++ 936 ? delay 50 ms
++ 937 ? servuinoLoop 230
++ 938 ? pinMode pin=30 OUTPUT
++ 939 ? digitalWrite pin=30 value=1
++ 940 ? delay 50 ms
++ 941 ? servuinoLoop 231
++ 942 ? pinMode pin=30 OUTPUT
++ 943 ? digitalWrite pin=30 value=1
++ 944 ? delay 50 ms
++ 945 ? servuinoLoop 232
++ 946 ? pinMode pin=30 OUTPUT
++ 947 ? digitalWrite pin=30 value=1
++ 948 ? delay 50 ms
++ 949 ? servuinoLoop 233
++ 950 ? pinMode pin=30 OUTPUT
++ 951 ? digitalWrite pin=30 value=1
++ 952 ? delay 50 ms
++ 953 ? servuinoLoop 234
++ 954 ? pinMode pin=30 OUTPUT
++ 955 ? digitalWrite pin=30 value=1
++ 956 ? delay 50 ms
++ 957 ? servuinoLoop 235
++ 958 ? pinMode pin=30 OUTPUT
++ 959 ? digitalWrite pin=30 value=1
++ 960 ? delay 50 ms
++ 961 ? servuinoLoop 236
++ 962 ? pinMode pin=30 OUTPUT
++ 963 ? digitalWrite pin=30 value=1
++ 964 ? delay 50 ms
++ 965 ? servuinoLoop 237
++ 966 ? pinMode pin=30 OUTPUT
++ 967 ? digitalWrite pin=30 value=1
++ 968 ? delay 50 ms
++ 969 ? servuinoLoop 238
++ 970 ? pinMode pin=30 OUTPUT
++ 971 ? digitalWrite pin=30 value=1
++ 972 ? delay 50 ms
++ 973 ? servuinoLoop 239
++ 974 ? pinMode pin=30 OUTPUT
++ 975 ? digitalWrite pin=30 value=1
++ 976 ? delay 50 ms
++ 977 ? servuinoLoop 240
++ 978 ? pinMode pin=30 OUTPUT
++ 979 ? digitalWrite pin=30 value=1
++ 980 ? delay 50 ms
++ 981 ? servuinoLoop 241
++ 982 ? pinMode pin=30 OUTPUT
++ 983 ? digitalWrite pin=30 value=1
++ 984 ? delay 50 ms
++ 985 ? servuinoLoop 242
++ 986 ? pinMode pin=30 OUTPUT
++ 987 ? digitalWrite pin=30 value=1
++ 988 ? delay 50 ms
++ 989 ? servuinoLoop 243
++ 990 ? pinMode pin=30 OUTPUT
++ 991 ? digitalWrite pin=30 value=1
++ 992 ? delay 50 ms
++ 993 ? servuinoLoop 244
++ 994 ? pinMode pin=30 OUTPUT
++ 995 ? digitalWrite pin=30 value=1
++ 996 ? delay 50 ms
++ 997 ? servuinoLoop 245
++ 998 ? pinMode pin=30 OUTPUT
++ 999 ? digitalWrite pin=30 value=1
++ 1000 ? delay 50 ms
+# ENDOFSIM

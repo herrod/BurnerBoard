@@ -1,0 +1,383 @@
+#include "Board_WS2801.h"
+#include "stdio.h"
+
+extern int g_curStep;
+extern void vScreenHook();
+
+/*****************************************************************************/
+
+// Burner Board WS2801-based RGB LED Modules in a strand
+// Original Written by Adafruit - MIT license
+
+// Modified to map virtual BurnerBoard 70x10 into 544 pixels
+// with Y strip sizes of 31, 45, 60, 66, 70, 70, 66, 60, 45, 31
+// Richard McDougall, June 2013
+
+// The - is a hole in the virtual matrix
+// The * is translated to a real LED pixel
+//
+// This image needs correcting -- don't forget 
+// But you get the idea, right?
+//
+// Starting at 0,0 left to right, bottom to top
+//    Front
+//
+//       9,69
+// ----**----    
+// --******--
+// --******--
+// --******--
+// --******--
+// --******--
+// -********-
+// -********-
+// -********-
+// -********-
+// -********-
+// -********-
+// -********-
+// **********
+// **********
+// **********
+// **********
+// **********
+// **********
+// **********
+// **********
+// **********
+// **********
+// -********-
+// -********-
+// -********-
+// -********-
+// -********-
+// -********-
+// -********-
+// --******--
+// --******--
+// --******--
+// --******--
+// --******--
+// ----**----   
+// 0,0 
+//   Back 
+
+#define NUM_REAL_BOARD_PIXELS 544
+
+FILE *vscreen;
+
+// Constructor for use with hardware SPI (specific clock/data pins):
+Board_WS2801::Board_WS2801(uint16_t n, uint8_t order) {
+  rgb_order = order;
+  alloc(n);
+  translationArray(NUM_REAL_BOARD_PIXELS);
+  vscreen = fopen("serv.vscreen", "w+");
+}
+
+// Constructor for use with arbitrary clock/data pins:
+Board_WS2801::Board_WS2801(uint16_t n, uint8_t dpin, uint8_t cpin, uint8_t order) {
+  rgb_order = order;
+  alloc(n);
+  translationArray(NUM_REAL_BOARD_PIXELS);
+  vscreen = fopen("serv.vscreen", "w+");
+}
+
+// Constructor for use with a matrix configuration, specify w, h for size of matrix
+// assumes configuration where string starts at coordinate 0,0 and continues to h-1,0, h-1,1
+// and on to 0,1, 0,2 and on to h-1,2 and so on. Snaking back and forth till the end.
+// other function calls with provide access to pixels via an x,y coordinate system
+// Board is x,y swapped to original Adafruit matrix.
+// It starts 10x70 starts at 0,0, on to 69,0, then 69,1 to 0,1, and so on
+Board_WS2801::Board_WS2801(uint16_t w, uint16_t h, uint8_t dpin, uint8_t cpin, uint8_t order) {
+  rgb_order = order;
+  alloc(w * h);
+  translationArray(NUM_REAL_BOARD_PIXELS);
+  width = w;
+  height = h;
+  vscreen = fopen("serv.vscreen", "w+");
+}
+
+
+Board_WS2801::Board_WS2801(uint16_t w, uint16_t h, uint8_t order) {
+  rgb_order = order;
+  alloc(w * h);
+  translationArray(NUM_REAL_BOARD_PIXELS);
+  width = w;
+  height = h;
+  vscreen = fopen("serv.vscreen", "w+");
+}
+
+// Allocate 3 bytes per pixel, init to RGB 'off' state:
+void Board_WS2801::alloc(uint16_t n) {
+  begun   = false;
+  numvirtLEDs = ((pixels = (uint8_t *)calloc(n, 3)) != NULL) ? n : 0;
+}
+
+
+// A cache of the pixel translations for the Burner Board LED strings
+// For performance, translate and cache the result (math is more expensive than memory op)
+// Cycles for load = 1
+// Performance per instruction on page 10 of http://www.atmel.com/Images/doc0856.pdf
+// translation is real board string pixel# = pixel_translate(virtual matrix with holes pixel#)
+void Board_WS2801::translationArray(uint16_t n) {
+  uint16_t virtpixel, newpixel, rgb;
+  
+  numboardLEDs = n;
+  
+  // Allocate Burner Board pix translation map
+  pixel_translate = (uint16_t *)calloc(numboardLEDs, 3);
+
+  if (pixel_translate == NULL)
+	  return;
+
+  // For each virt board pixel translate to real board matrix positions
+  for(virtpixel = 0; virtpixel < numvirtLEDs; virtpixel ++) {
+    // Array Pixel starts at 0,0 and translation map calc'ed with start of 1,1
+	  newpixel = BoardPixel(virtpixel + 1);
+    if (newpixel) {
+      // Array Pixel starts at 0,0 and translation map calc'ed with start of 1,1
+      newpixel--;
+	    for (rgb = 0; rgb < 3; rgb ++) {
+	  	    pixel_translate[(newpixel * 3) + rgb] = (virtpixel * 3) + rgb;
+	    }
+    }
+  }
+}
+
+// via Michael Vogt/neophob: empty constructor is used when strand length
+// isn't known at compile-time; situations where program config might be
+// read from internal flash memory or an SD card, or arrive via serial
+// command.  If using this constructor, MUST follow up with updateLength()
+// and updatePins() to establish the strand length and output pins!
+// Also, updateOrder() to change RGB vs GRB order (RGB is default).
+Board_WS2801::Board_WS2801(void) {
+  begun     = false;
+  numvirtLEDs   = 0;
+  pixels    = NULL;
+  rgb_order = WS2801_RGB;
+}
+
+// Release memory (as needed):
+Board_WS2801::~Board_WS2801(void) {
+  if (pixels != NULL) {
+    free(pixels);
+  }
+}
+
+// Activate hard/soft SPI as appropriate:
+void Board_WS2801::begin(void) {
+  if(hardwareSPI == true) {
+  } else {
+  }
+  begun = true;
+}
+
+// Change pin assignments post-constructor, switching to hardware SPI:
+void Board_WS2801::updatePins(void) {
+  hardwareSPI = true;
+  datapin     = clkpin = 0;
+}
+
+// Change pin assignments post-constructor, using arbitrary pins:
+void Board_WS2801::updatePins(uint8_t dpin, uint8_t cpin) {
+}
+
+// Enable SPI hardware and set up protocol details:
+void Board_WS2801::startSPI(void) {
+}
+
+uint16_t Board_WS2801::numPixels(void) {
+  return numvirtLEDs;
+}
+
+// Change strand length (see notes with empty constructor, above):
+void Board_WS2801::updateLength(uint16_t n) {
+  if(pixels != NULL) free(pixels); // Free existing data (if any)
+  // Allocate new data -- note: ALL PIXELS ARE CLEARED
+  numvirtLEDs = ((pixels = (uint8_t *)calloc(n, 3)) != NULL) ? n : 0;
+  // 'begun' state does not change -- pins retain prior modes
+}
+
+// Change RGB data order (see notes with empty constructor, above):
+void Board_WS2801::updateOrder(uint8_t order) {
+  rgb_order = order;
+  // Existing LED data, if any, is NOT reformatted to new data order.
+  // Calling function should clear or fill pixel data anew.
+}
+
+
+// Clock out the actual Burner Board Pixels without holes
+// 
+void Board_WS2801::show(void) {
+  uint16_t y, x, rgb;
+  bool first = true;
+
+  fprintf(vscreen, "+ %d ? ", g_curStep);
+
+  for (x = 0; x < width; x++) {
+    for(y=0 ; y<height; y++) {
+	    //fprintf(vscreen, "+ %d %d %d ? ", g_curStep, width, height);
+      for (rgb = 0; rgb < 3; rgb++) {
+        if (first == false) {
+	        fprintf(vscreen, ",");
+        } else {
+	        first = false;
+        }
+        fprintf(vscreen, "%d", pixels[3 * (x * height + y) + rgb]);
+      }
+    }
+  }
+  fprintf(vscreen, " \n");
+  vScreenHook();
+}
+
+// Set pixel color from separate 8-bit R, G, B components:
+void Board_WS2801::setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b) {
+  if(n < numvirtLEDs) { // Arrays are 0-indexed, thus NOT '<='
+    uint8_t *p = &pixels[n * 3];
+    // See notes later regarding color order
+    if(rgb_order == WS2801_RGB) {
+      *p++ = r;
+      *p++ = g;
+    } else {
+      *p++ = g;
+      *p++ = r;
+    }
+    *p++ = b;
+  }
+}
+
+// Set pixel color from separate 8-bit R, G, B components using x,y coordinate system:
+void Board_WS2801::setPixelColor(uint16_t x, uint16_t y, uint8_t r, uint8_t g, uint8_t b) {
+  // calculate x offset first
+  uint16_t offset = y % height;
+  // add x offset
+  offset += x * height;
+  setPixelColor(offset, r, g, b);
+}
+
+// Set pixel color from 'packed' 32-bit RGB value:
+void Board_WS2801::setPixelColor(uint16_t n, uint32_t c) {
+  if(n < numvirtLEDs) { // Arrays are 0-indexed, thus NOT '<='
+    uint8_t *p = &pixels[n * 3];
+    // To keep the show() loop as simple & fast as possible, the
+    // internal color representation is native to different pixel
+    // types.  For compatibility with existing code, 'packed' RGB
+    // values passed in or out are always 0xRRGGBB order.
+    if(rgb_order == WS2801_RGB) {
+      *p++ = c >> 16; // Red
+      *p++ = c >>  8; // Green
+    } else {
+      *p++ = c >>  8; // Green
+      *p++ = c >> 16; // Red
+    }
+    *p++ = c;         // Blue
+  }
+}
+
+// Set pixel color from 'packed' 32-bit RGB value using x,y coordinate system:
+void Board_WS2801::setPixelColor(uint16_t x, uint16_t y, uint32_t c) {
+  // calculate x offset first
+  uint16_t offset = y % height;
+  // add x offset
+  offset += x * height;
+  setPixelColor(offset, c);
+}
+
+// Query color from previously-set pixel (returns packed 32-bit RGB value)
+uint32_t Board_WS2801::getPixelColor(uint16_t n) {
+  if(n < numvirtLEDs) {
+    uint16_t ofs = n * 3;
+    // To keep the show() loop as simple & fast as possible, the
+    // internal color representation is native to different pixel
+    // types.  For compatibility with existing code, 'packed' RGB
+    // values passed in or out are always 0xRRGGBB order.
+    return (rgb_order == WS2801_RGB) ?
+      ((uint32_t)pixels[ofs] << 16) | ((uint16_t) pixels[ofs + 1] <<  8) | pixels[ofs + 2] :
+      (pixels[ofs] <<  8) | ((uint32_t)pixels[ofs + 1] << 16) | pixels[ofs + 2];
+  }
+
+  return 0; // Pixel # is out of bounds
+}
+
+// Query color from previously-set pixel (returns packed 32-bit RGB value)
+uint32_t Board_WS2801::getPixelColor(uint16_t x, uint16_t y) {
+  // calculate x offset first
+  uint16_t n = y % height;
+  // add x offset
+  n += x * height;
+  if(n < numvirtLEDs) {
+    uint16_t ofs = n * 3;
+    // To keep the show() loop as simple & fast as possible, the
+    // internal color representation is native to different pixel
+    // types.  For compatibility with existing code, 'packed' RGB
+    // values passed in or out are always 0xRRGGBB order.
+    return (rgb_order == WS2801_RGB) ?
+      ((uint32_t)pixels[ofs] << 16) | ((uint16_t) pixels[ofs + 1] <<  8) | pixels[ofs + 2] :
+      (pixels[ofs] <<  8) | ((uint32_t)pixels[ofs + 1] << 16) | pixels[ofs + 2];
+  }
+
+  return 0; // Pixel # is out of bounds
+}
+
+
+
+// Map virtual pixels to physical pixels on the Burner Board Layout
+// Emulate a 70 x 10 rectangle matrix 
+// Strip lengths are 31, 45, 60, 66, 70, 70, 66, 60, 45, 31
+// format is colx: virt pixel offset -> real pixel offset
+// col1: 1-19, 20-50, 51-70: 20-50->1-31
+// col2: 71-140: 71-82, 83-127, 128-140: 83-127->76-32 
+// col3: 141-210: 141-145, 146-205, 206-210: 146-205->77-136
+// col4: 211-280: 211-212, 213->278, 279-280: 213-278->202-137
+// col5: 281-350: 281-350: 281-350->203-272
+// col6: 351-420: 351-420: 351-420->342-273
+// col7: 421-490: 421-422, 423-488, 489-490: 423-488->343-408
+// col8: 491-560: 491-495, 496-555, 556-560: 496-555->468-409
+// col9: 561-630: 561-572, 573-617, 618-630: 573-617->469-513
+// col10: 631-700: 631-649, 650-680, 681-700: 650-680->544-514
+uint32_t Board_WS2801::BoardPixel(uint32_t pixel) {
+  uint32_t newpixel;
+
+  // Pixel is a hole in the map, returns 0
+  newpixel = 0;
+
+  // Map linear row x column strip into strip with holes in grid
+  // to cater for pixels that are missing from the corners of the
+  // Burner Board layout
+
+  //1  20-50->1-31
+  if (pixel >= 20 && pixel <=50)
+    newpixel = pixel - 19;
+  //2 83-127->76-32
+  if (pixel >= 83 && pixel <= 127)
+    newpixel = 127 - pixel + 32;
+  //3 146-205->77-136
+  if (pixel >= 146 && pixel <= 205)
+    newpixel = pixel - 146 + 77;
+  //4 213-278->202-137
+  if (pixel >= 213 && pixel <= 278)
+    newpixel = 278 - pixel + 137;
+  //5 281-350->203-272
+  if (pixel >= 281 && pixel <= 350)
+    newpixel = pixel - 281 + 203;
+  //6 351-420->342-273
+  if (pixel >= 351 && pixel <=420)
+    newpixel = 420 - pixel + 273;
+  //7 423-488->343-408
+  if (pixel >= 423 && pixel <= 488)
+    newpixel = pixel - 423 + 343;
+  //8 496-555->468-409
+  if (pixel >= 496 && pixel <= 555)
+    newpixel = 555 - pixel + 409;
+  //9 573-617->469-513
+  if (pixel >= 573 && pixel <= 617)
+    newpixel = pixel - 573 + 469;
+  //10 650-680->544-514
+  if (pixel >= 650 && pixel <= 680)
+    newpixel = 680 - pixel + 514;
+    
+  return newpixel;
+}  
+
+
