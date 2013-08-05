@@ -59,6 +59,15 @@
 // 0,0 
 //   Back 
 
+#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+#define MEGA 1
+#else
+#define DUE 1
+#endif
+
+extern void screenHook();
+
+
 #define NUM_REAL_BOARD_PIXELS 544
 
 // Constructor for use with hardware SPI (specific clock/data pins):
@@ -115,25 +124,25 @@ void Board_WS2801::alloc(uint16_t n) {
 // translation is real board string pixel# = pixel_translate(virtual matrix with holes pixel#)
 void Board_WS2801::translationArray(uint16_t n) {
   uint16_t virtpixel, newpixel, rgb;
-  
+
   numboardLEDs = n;
-  
+
   // Allocate Burner Board pix translation map
   pixel_translate = (uint16_t *)calloc(numboardLEDs, 3);
 
   if (pixel_translate == NULL)
-	  return;
+    return;
 
   // For each virt board pixel translate to real board matrix positions
   for(virtpixel = 0; virtpixel < numvirtLEDs; virtpixel ++) {
     // Array Pixel starts at 0,0 and translation map calc'ed with start of 1,1
-	  newpixel = BoardPixel(virtpixel + 1);
+    newpixel = BoardPixel(virtpixel + 1);
     if (newpixel) {
       // Array Pixel starts at 0,0 and translation map calc'ed with start of 1,1
       newpixel--;
-	    for (rgb = 0; rgb < 3; rgb ++) {
-	  	    pixel_translate[(newpixel * 3) + rgb] = (virtpixel * 3) + rgb;
-	    }
+      for (rgb = 0; rgb < 3; rgb ++) {
+        pixel_translate[(newpixel * 3) + rgb] = (virtpixel * 3) + rgb;
+      }
     }
   }
 }
@@ -182,6 +191,7 @@ void Board_WS2801::updatePins(void) {
   // NOT restored as inputs!
 }
 
+#ifndef DUE
 // Change pin assignments post-constructor, using arbitrary pins:
 void Board_WS2801::updatePins(uint8_t dpin, uint8_t cpin) {
 
@@ -204,13 +214,19 @@ void Board_WS2801::updatePins(uint8_t dpin, uint8_t cpin) {
   dataport    = portOutputRegister(digitalPinToPort(dpin));
   datapinmask = digitalPinToBitMask(dpin);
 }
+#endif
 
 // Enable SPI hardware and set up protocol details:
 void Board_WS2801::startSPI(void) {
-    SPI.begin();
-    SPI.setBitOrder(MSBFIRST);
-    SPI.setDataMode(SPI_MODE0);
-    SPI.setClockDivider(SPI_CLOCK_DIV16); // 1 MHz max, else flicker
+  SPI.begin();
+  SPI.setBitOrder(MSBFIRST);
+  SPI.setDataMode(SPI_MODE0);
+  //    SPI.setClockDivider(SPI_CLOCK_DIV16); // 1 MHz max, else flicker
+#ifdef DUE
+  SPI.setClockDivider(30, 4 * 84);
+#else
+  SPI.setClockDivider(SPI_CLOCK_DIV32); // 1 MHz max, else flicker
+#endif
 }
 
 uint16_t Board_WS2801::numPixels(void) {
@@ -240,15 +256,21 @@ void Board_WS2801::show(void) {
 
   // Write 24 bits per pixel:
   if(hardwareSPI) {
+		//noInterrupts();
+		//startSPI();
     for(i=0; i<nl3; i++) {
-      SPDR = pixels[pixel_translate[i]];
-      while(!(SPSR & (1<<SPIF)));
+			SPI.transfer(pixels[pixel_translate[i]]);
+//      SPDR = pixels[pixel_translate[i]];
+//      while(!(SPSR & (1<<SPIF)));
     }
+		//interrupts();
   } else {
     for(i=0; i<nl3; i++ ) {
       for(bit=0x80; bit; bit >>= 1) {
-        if(pixels[pixel_translate[i]] & bit) *dataport |=  datapinmask;
-        else                *dataport &= ~datapinmask;
+        if(pixels[pixel_translate[i]] & bit) 
+          *dataport |=  datapinmask;
+        else                
+          *dataport &= ~datapinmask;
         *clkport |=  clkpinmask;
         *clkport &= ~clkpinmask;
       }
@@ -256,6 +278,8 @@ void Board_WS2801::show(void) {
   }
 
   delay(1); // Data is latched by holding clock pin low for 1 millisecond
+  screenHook();
+
 }
 
 // Set pixel color from separate 8-bit R, G, B components:
@@ -403,7 +427,7 @@ uint32_t Board_WS2801::BoardPixel(uint32_t pixel) {
   //10 650-680->544-514
   if (pixel >= 650 && pixel <= 680)
     newpixel = 680 - pixel + 514;
-    
+
   return newpixel;
 }  
 
