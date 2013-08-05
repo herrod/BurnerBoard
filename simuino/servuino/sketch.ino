@@ -206,10 +206,117 @@ void drawUSflag() {
 
 }
 
+/* Helper macros */
+#define HEX__(n) 0x##n##LU
+#define B8__(x) ((x&0x0000000FLU)?1:0) \
++((x&0x000000F0LU)?2:0) \
++((x&0x00000F00LU)?4:0) \
++((x&0x0000F000LU)?8:0) \
++((x&0x000F0000LU)?16:0) \
++((x&0x00F00000LU)?32:0) \
++((x&0x0F000000LU)?64:0) \
++((x&0xF0000000LU)?128:0)
+
+/* User macros */
+#define B8(d) ((unsigned char)B8__(HEX__(d)))
+#define B16(dmsb,dlsb) (((unsigned short)B8(dmsb)<<8) \
++ B8(dlsb))
+#define B32(dmsb,db2,db3,dlsb) (((unsigned long)B8(dmsb)<<24) \
++ ((unsigned long)B8(db2)<<16) \
++ ((unsigned long)B8(db3)<<8) \
++ B8(dlsb))
+
+
+
+void drawDistrikt() {
+  uint16_t x;
+	uint16_t row;
+	
+	// DISTRIKT
+	uint16_t distrikt[] = {
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(11,11111111),
+		B16(10,00000001),
+		B16(10,00000001),
+		B16(10,11000001),
+		B16(10,11111101),
+		B16(10,11111101),
+		B16(10,11000001),
+		B16(10,00000001),
+		B16(10,00000001),
+		B16(10,11001101),
+		B16(10,00110001),
+		B16(10,11111101),
+		B16(10,00000001),
+		B16(10,00000001),
+		B16(10,11111101),
+		B16(10,00000001),
+		B16(10,00000001),
+		B16(10,01101101),
+		B16(10,11010001),
+		B16(10,11010001),
+		B16(10,11111101),
+		B16(10,00000001),
+		B16(10,00000001),
+		B16(10,11000001),
+		B16(10,11111101),
+		B16(10,11111101),
+		B16(10,11000001),
+		B16(10,00000001),
+		B16(10,00000001),
+		B16(10,01011001),
+		B16(10,11011101),
+		B16(10,11101101),
+		B16(10,01101001),
+		B16(10,00000001),
+		B16(10,00000001),
+		B16(10,11111101),
+		B16(10,00000001),
+		B16(10,00000001),
+		B16(10,01111001),
+		B16(10,10000101),
+		B16(10,11111101),
+		B16(10,11111101),
+		B16(10,00000001),
+		B16(10,00000001),
+		B16(11,11111111),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000),
+		B16(00,00000000)};
+
+	ClearScreen();
+  for (row = 0; row < sizeof(distrikt) / sizeof(uint16_t); row++) {
+	  for (x = 0; x < 10; x++) {
+        strip.setPixelColor(x,  row, distrikt[row] & (1<<(x))? Color(255, 255, 255): Color(0, 0, 0));
+    }
+  }
+  strip.show();
+}
+
+
 uint8_t wheel;
 
 void drawInvader(uint8_t invader) {
-  uint32_t color;
   uint16_t x;
   for (row = 0; row < 8; row++) {
     for (x = 1; x < 9; x++) {
@@ -225,15 +332,14 @@ void drawInvader(uint8_t invader) {
   }
 }
 
+
+
 void drawHeader() {
   uint32_t color;
   uint16_t x;
   
  for (x = 0; x < 10; x++) {
-//   color = random(2,4)%2 == 0 ? Color(0,0,0) : Color(0, 255, 0); //Chance of 1/3rd 
    color = random(2,4)%2 == 0 ? Color(0, 0, 0): Wheel(wheel); //Chance of 1/3rd 
-//   color = random(2,4)%2 == 0 ? Color(0, 0, 0): Color(255, 255, 255); //Chance of 1/3rd 
-//   color =  Color(255, 255, 255); //Chance of 1/3rd 
    strip.setPixelColor(x, 69, color);
    wheel++;
  }
@@ -270,18 +376,18 @@ void DrawBattery() {
     // Clear screen and measure voltage, since screen load varies it!
   ClearScreen();
   strip.show();
-  delayX(273,1000);
+  delayX(379,1000);
   
   // Convert to level 0-28
   for (i = 0; i < 10; i++) {
-    level += sample = analogReadX(277,BATTERY_PIN);
-//  Serial.printX(278,"Battery sample ");
-//  Serial.printX(279,sample, DEC);
-//  Serial.printlnX(280," ");
+    level += sample = analogReadX(383,BATTERY_PIN);
+//  Serial.printX(384,"Battery sample ");
+//  Serial.printX(385,sample, DEC);
+//  Serial.printlnX(386," ");
   }
-//  Serial.printX(282,"Battery Level ");
-//  Serial.printX(283,level, DEC);
-//  Serial.printlnX(284," ");
+//  Serial.printX(388,"Battery Level ");
+//  Serial.printX(389,level, DEC);
+//  Serial.printlnX(390," ");
   
   if (level > LEVEL_FULL) {
     level = LEVEL_FULL;
@@ -299,9 +405,9 @@ void DrawBattery() {
     
   level = level / (LEVEL_FULL - LEVEL_EMPTY);
   
-//  Serial.printX(302,"Adjusted Level ");
-//  Serial.printX(303,level, DEC);
-//  Serial.printlnX(304," ");
+//  Serial.printX(408,"Adjusted Level ");
+//  Serial.printX(409,level, DEC);
+//  Serial.printlnX(410," ");
   
 
   
@@ -353,7 +459,7 @@ void lines(uint8_t wait) {
     for(y = 0; y < 70; y++) {
      strip.setPixelColor(x, y, Wheel(j));
      strip.show();
-     delayX(356,wait);
+     delayX(462,wait);
     }
     j+=50;
   }
@@ -364,12 +470,12 @@ void drawzagX(uint8_t w, uint8_t h, uint8_t wait) {
   for (x=0; x<w; x++) {
     strip.setPixelColor(x, x, 255, 0, 0);
     strip.show();
-    delayX(367,wait);
+    delayX(473,wait);
   }
   for (y=0; y<h; y++) {
     strip.setPixelColor(w-1-y, y, 0, 0, 255);
     strip.show();
-    delayX(372,wait);
+    delayX(478,wait);
   }
 
 }
@@ -409,7 +515,7 @@ void bounce(uint8_t w, uint8_t h, uint8_t wait) {
      }
      strip.setPixelColor(x, y, Wheel(j));
      strip.show();
-     delayX(412,wait);
+     delayX(518,wait);
      strip.setPixelColor(x, y, 0, 0, 0);
   }
 }
@@ -422,20 +528,20 @@ void setup() {
   uint16_t i;
 
   // Console for debugging
-  Serial.beginX(425,9600);
-  Serial.printlnX(426,"Goodnight moon!");
+  Serial.beginX(531,9600);
+  Serial.printlnX(532,"Goodnight moon!");
   
   // Set battery level analogue reference
 //  analogReference(INTERNAL1V1);
-//  pinModeX(430,BATTERY_PIN, INPUT);
+//  pinModeX(536,BATTERY_PIN, INPUT);
 
 /*  
   for (uint16_t i = 0; i < 544; i++) {
-    Serial.printX(434,"Strip pixel ");
-    Serial.printX(435,i, DEC);
-    Serial.printX(436," = virt pixel ");
-    Serial.printX(437,strip.pixel_translate[i], DEC);
-    Serial.printlnX(438," ");
+    Serial.printX(540,"Strip pixel ");
+    Serial.printX(541,i, DEC);
+    Serial.printX(542," = virt pixel ");
+    Serial.printX(543,strip.pixel_translate[i], DEC);
+    Serial.printlnX(544," ");
   }
 */
   
@@ -460,6 +566,8 @@ ledn[5] = B00111100;
 ledn[6] = B00100100;
 ledn[7] = B00100100;
 
+
+
   strip.begin();
   
   invader = 0;
@@ -471,7 +579,7 @@ ledn[7] = B00100100;
   //bounce(10, 70, 0);
 
   DrawBattery();
-//  delayX(474,10000);
+//  delayX(582,10000);
  
   ClearScreen();
 }
@@ -481,14 +589,17 @@ int16_t loopcnt = 0;
 void loop() {
   uint16_t i;
 
-  drawHeader();
-  ShiftMatrixLines();  
+//  drawHeader();
+//  ShiftMatrixLines();  
 
 //   drawUSflag();
 
+
+  drawDistrikt();
+
 /*
   drawInvader(invader);
-  delayX(491,500);
+  delayX(602,500);
 
     if (invader == 0) {
        invader = 1;
@@ -500,7 +611,7 @@ void loop() {
   if (loopcnt == 500) {
     loopcnt = 0;
     DrawBattery();
-    delayX(503,20000);
+    delayX(614,20000);
     ClearScreen();
   }
   
@@ -509,7 +620,7 @@ void loop() {
 }
 
 void vScreenHook() {
-  pinModeX(512,30, OUTPUT);
-  digitalWriteX(513,30, HIGH);
+  pinModeX(623,30, OUTPUT);
+  digitalWriteX(624,30, HIGH);
 }
 

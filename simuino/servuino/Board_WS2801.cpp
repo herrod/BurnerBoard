@@ -2,7 +2,7 @@
 #include "stdio.h"
 
 extern int g_curStep;
-extern void vScreenHook();
+extern void screenHook();
 
 /*****************************************************************************/
 
@@ -215,21 +215,32 @@ void Board_WS2801::show(void) {
   fprintf(vscreen, "+ %d ? ", g_curStep);
 
   for (x = 0; x < width; x++) {
-    for(y=0 ; y<height; y++) {
+    for(y	=0 ; y<height; y++) {
 	    //fprintf(vscreen, "+ %d %d %d ? ", g_curStep, width, height);
-      for (rgb = 0; rgb < 3; rgb++) {
+	    if (BoardPixel(x * height + y)) {
+        for (rgb = 0; rgb < 3; rgb++) {
+          if (first == false) {
+	          fprintf(vscreen, ",");
+          } else {
+	          first = false;
+          }
+          fprintf(vscreen, "%d", pixels[3 * (x * height + y) + rgb]);
+        }
+      } else {
         if (first == false) {
 	        fprintf(vscreen, ",");
         } else {
 	        first = false;
         }
-        fprintf(vscreen, "%d", pixels[3 * (x * height + y) + rgb]);
+        fprintf(vscreen, "0, 0, 0");	
       }
     }
   }
   fprintf(vscreen, " \n");
-  vScreenHook();
+  screenHook();
 }
+
+
 
 // Set pixel color from separate 8-bit R, G, B components:
 void Board_WS2801::setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b) {
