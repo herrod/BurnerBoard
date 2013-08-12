@@ -222,10 +222,10 @@ void Board_WS2801::startSPI(void) {
   SPI.setBitOrder(MSBFIRST);
   SPI.setDataMode(SPI_MODE0);
   //    SPI.setClockDivider(SPI_CLOCK_DIV16); // 1 MHz max, else flicker
-#ifdef DUE
-  SPI.setClockDivider(30, 4 * 84);
+#ifdef MEGA
+  SPI.setClockDivider(SPI_CLOCK_DIV16); // 1 MHz max, else flicker
 #else
-  SPI.setClockDivider(SPI_CLOCK_DIV32); // 1 MHz max, else flicker
+  SPI.setClockDivider(168); // 1 MHz max, else flicker
 #endif
 }
 
@@ -256,10 +256,10 @@ void Board_WS2801::show(void) {
 
   // Write 24 bits per pixel:
   if(hardwareSPI) {
-		//noInterrupts();
-		//startSPI();
+  //noInterrupts();
+  //startSPI();
     for(i=0; i<nl3; i++) {
-			SPI.transfer(pixels[pixel_translate[i]]);
+	SPI.transfer(pixels[pixel_translate[i]]);
 //      SPDR = pixels[pixel_translate[i]];
 //      while(!(SPSR & (1<<SPIF)));
     }
