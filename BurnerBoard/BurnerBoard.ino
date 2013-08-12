@@ -1,9 +1,9 @@
 #include "SPI.h"
 #include "Board_WS2801.h"
-#include <MozziGuts.h>
-#include <Oscil.h>
-#include <tables/cos8192_int8.h> // table for Oscils to play
-#include <mozzi_midi.h> // for mtof
+//#include <MozziGuts.h>
+//#include <Oscil.h>
+//#include <tables/cos8192_int8.h> // table for Oscils to play
+//#include <mozzi_midi.h> // for mtof
 
 /*****************************************************************************
   Burner Board LED and Audio Code
@@ -20,24 +20,36 @@
 
  *****************************************************************************/
 
+#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+#define MEGA 1
+#else
+#define DUE 1
+#endif
+
+//#define AUDIO 1
+
 // Audio Stuff
+#ifdef AUDIO
 #define CONTROL_RATE 64 // powers of 2 please
 
 Oscil<COS8192_NUM_CELLS, AUDIO_RATE> aCos(COS8192_DATA);
 Oscil<COS8192_NUM_CELLS, AUDIO_RATE> aVibrato(COS8192_DATA);
+
+#endif
+
 const long intensity = 300;
 #define AUDIO_MODE STANDARD
 // End Audio Stuff
 
 /*
-ISR(TIMER5_OVF_vect)        // interrupt service routine that wraps a user defined function supplied by attachInterrupt
-{
-  TCNT5 = 34286;            // preload timer
-  Serial.println("Int");
-}
-*/
+   ISR(TIMER5_OVF_vect)        // interrupt service routine that wraps a user defined function supplied by attachInterrupt
+   {
+   TCNT5 = 34286;            // preload timer
+   Serial.println("Int");
+   }
+ */
 
-bool leds_on = false;
+bool ledsOn = false;
 
 
 // Burner board is not using this: we are using Hardware SPI for performance
@@ -65,194 +77,116 @@ uint8_t ledn[8];
 
 #define BATTERY_PIN A0
 #define MOT_PIN A1
+#ifdef MEGA
 #define REMOTE_PIN A10
 #define LRELAY_PIN 36
 #define SRELAY_PIN 42
+#else
+#define REMOTE_PIN A2
+#define LRELAY_PIN 3
+#define SRELAY_PIN 4
+#endif
 
 uint8_t row;
 uint8_t invader;
 
-void setup() {
+uint8_t wheel;
 
-  uint16_t i;
+/* Helper functions */
 
-  // Console for debugging
-  Serial.begin(9600);
-  Serial.println("Goodnight moon!");
-
-  // Set battery level analogue reference
-  analogReference(INTERNAL1V1);
-  pinMode(BATTERY_PIN, INPUT);
-  pinMode(MOT_PIN, INPUT);
-  pinMode(REMOTE_PIN, INPUT);
-  digitalWrite(REMOTE_PIN, LOW);
-  pinMode(SRELAY_PIN, OUTPUT);
-  pinMode(LRELAY_PIN, OUTPUT);
-  digitalWrite(SRELAY_PIN, HIGH);
-  
-  /*
-  TCCR5A = 0;
-  TCCR5B = 0;
-  TCNT5  = 0;
-
-  OCR5A = 31250;            // compare match register 16MHz/256/2Hz
-  TCCR5B |= (1 << WGM12);   // CTC mode
-  TCCR5B |= (1 << CS12);    // 256 prescaler 
-  TIMSK5 |= (1 << OCIE1A);  // enable timer compare interrupt
-  */
-  
-
-
-  /*
-     for (uint16_t i = 0; i < 544; i++) {
-     Serial.print("Strip pixel ");
-     Serial.print(i, DEC);
-     Serial.print(" = virt pixel ");
-     Serial.print(strip.pixel_translate[i], DEC);
-     Serial.println(" ");
-     }
-   */
-
-
-  // Space Invader Character
-  // 1st animation for the character
-  ledo[0] = B01000010;
-  ledo[1] = B00100100;
-  ledo[2] = B00111100;
-  ledo[3] = B01111110;
-  ledo[4] = B11111111;
-  ledo[5] = B10111101;
-  ledo[6] = B11000011;
-  ledo[7] = B01100110;
-
-  // 2nd animation for the character
-  ledn[0] = B11000011;
-  ledn[1] = B00100100;
-  ledn[2] = B00111100;
-  ledn[3] = B01011010;
-  ledn[4] = B11111111;
-  ledn[5] = B00111100;
-  ledn[6] = B00100100;
-  ledn[7] = B00100100;
-
-  strip.begin();
-
-  invader = 0;
-
-  // Update LED contents, to start they are all 'off'
-  ClearScreen();
-  strip.show();
-
-  //bounce(10, 70, 0);
-
-  DrawBattery();
-  delay(10000);
-
-  ClearScreen();
-  
-  startMozzi(64);
-  aCos.setFreq(25);
-  aVibrato.setFreq(4);
-  
+// Create a 24 bit color value from R,G,B
+uint32_t rgbTo24BitColor(byte r, byte g, byte b)
+{
+        uint32_t c;
+        c = r;
+        c <<= 8;
+        c |= g;
+        c <<= 8;
+        c |= b;
+        return c;
 }
 
-int16_t loopcnt = 0;
+//Input a value 0 to 255 to get a color value.
+//The colours are a transition r - g -b - back to r
+uint32_t wheel(byte WheelPos)
+{
+        if (WheelPos < 85) {
+                return rgbTo24BitColor(WheelPos * 3, 255 - WheelPos * 3, 0);
+        } else if (WheelPos < 170) {
+                WheelPos -= 85;
+                return rgbTo24BitColor(255 - WheelPos * 3, 0, WheelPos * 3);
+        } else {
+          WheelPos -= 170; 
+          return rgbTo24BitColor(0, WheelPos * 3, 255 - WheelPos * 3);
+        }
+}
 
-int16_t state = 0;
-// state = 0: lines
-// state = 1: flag
-// state = 2: battery
 
-void loop() {
+//Shift Matrixrow down
+void shiftMatrixLines()
+{
+  uint16_t x, y;
 
-//#define BAUDIO 1
-#ifdef BAUDIO
-  audioHook();
-  
-#else
-  if (leds_on) {
-    
-
-  if (loopcnt > 5000) {
-    loopcnt = 0;
-    state++;
+  for(y = 0; y < 69; y++)
+  {
+    for(byte x = 0; x < 10;x++)
+    {
+      strip.setPixelColor(x, y, strip.getPixelColor(x, y + 1));         
+    }
   }
+  delay(50);
+}
 
+// Clear Screen
+void clearScreen()
+{
+  uint16_t x, y;
 
-  if (state == 0) {
-    drawDistrikt();
-    delay(2000);
-    state = 1;    
+  for(y = 0; y < 70; y++)
+  {
+    for(byte x = 0; x < 10;x++)
+    {
+      strip.setPixelColor(x, y, rgbTo24BitColor(0, 0, 0));         
+    }
   }
+}
 
-  if (state == 1) {
-    drawHeader();
-    ShiftMatrixLines();
-  }  
+void lines(uint8_t wait) {
+  uint16_t x, y;
+  uint32_t j = 0;
 
-  if (state == 2) {
-    drawUSflag();
-    loopcnt += 50;
+  for (x = 0; x < 10; x++) {
+    for(y = 0; y < 70; y++) {
+      strip.setPixelColor(x, y, wheel(j));
+      strip.show();
+      delay(wait);
+    }
+    j += 50;
   }
+}
 
-  if (state == 3) {
-    loopcnt = 0;
-    state = 0;
-    DrawBattery();
-    delay(2000);
-    ClearScreen();
-  }
-
-  /*
-     drawInvader(invader);
-     delay(500);
-
-     if (invader == 0) {
-     invader = 1;
-     } else {
-     invader = 0;
-     }
-   */
-  } else {
-    ClearScreen();
+void drawzagX(uint8_t w, uint8_t h, uint8_t wait) {
+  uint16_t x, y;
+  for (x=0; x<w; x++) {
+    strip.setPixelColor(x, x, 255, 0, 0);
     strip.show();
+    delay(wait);
   }
-#endif
-
-  loopcnt++;
-
-}
-
-uint32_t update_tone = 100;
-
-void updateControl() {
-  uint16_t mot_speed;
-  float f1, f2;
-  
-  
-  if (update_tone > 5) {
-    mot_speed = analogRead(MOT_PIN);
-  
-    f1 = mot_speed / 21.0;
-    f1 += 20;
-    f2 = f1 / 4.0;
-  
-//  Serial.print("update ");
-//  Serial.println(mot_speed);
-    aCos.setFreq(mtof(f1));
-    aVibrato.setFreq(f2);
-    update_tone = 0;
+  for (y=0; y<h; y++) {
+    strip.setPixelColor(w-1-y, y, 0, 0, 255);
+    strip.show();
+    delay(wait);
   }
 
-
-  update_tone++;  
 }
 
-int updateAudio(){
-  long vibrato = intensity * aVibrato.next();
-  return (int)aCos.phMod(vibrato);
-}
+void drawY(uint8_t startx, uint8_t starty, uint8_t length, uint32_t color) {
+  uint16_t x, y;
 
+  for (y = starty; y < starty + length; y++) {
+    strip.setPixelColor(x, y, color);
+  }
+}
 
 /* Helper macros */
 #define HEX__(n) 0x##n##LU
@@ -352,22 +286,21 @@ void drawDistrikt() {
     B16(00,00000000),
     B16(00,00000000)};
 
-  ClearScreen();
+  clearScreen();
   for (row = 0; row < sizeof(distrikt) / sizeof(uint16_t); row++) {
     for (x = 0; x < 10; x++) {
-      strip.setPixelColor(x,  row, distrikt[row] & (1<<(x))? Color(255, 255, 255): Color(0, 0, 0));
+      strip.setPixelColor(x,  row, distrikt[row] & (1<<(x))? rgbTo24BitColor(255, 255, 255): rgbTo24BitColor(0, 0, 0));
     }
   }
   strip.show();
 }
 
 
-
 // US flag 
 void drawUSflag() {
 
-  //drawY(0, 70, Color(255, 0, 0));
-  //drawY(1, 70, Color(255, 255, 255));
+  //drawY(0, 70, rgbTo24BitColor(255, 0, 0));
+  //drawY(1, 70, rgbTo24BitColor(255, 255, 255));
 
   uint32_t color;
   uint16_t x;
@@ -377,60 +310,60 @@ void drawUSflag() {
   for (row = 0; row < 20; row++) {
 
     for (x = 0; x < 10; x++) {
-      strip.setPixelColor(x, 69, Color(RGB_DIM, 0, 0));
+      strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, 0, 0));
       x++;
-      strip.setPixelColor(x, 69, Color(RGB_DIM, RGB_DIM, RGB_DIM));
+      strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
     }
-    ShiftMatrixLines();
+    shiftMatrixLines();
     strip.show();
   }
 
   // Red and White with solid blue
   for (x = 0; x < 4; x++) {
-    strip.setPixelColor(x, 69, Color(RGB_DIM, 0, 0));
+    strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, 0, 0));
     x++;
-    strip.setPixelColor(x, 69, Color(RGB_DIM, RGB_DIM, RGB_DIM));
+    strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
   }
-  ShiftMatrixLines();
+  shiftMatrixLines();
   strip.show();
   row++;
 
 
   // Red/white
   for (x = 0; x < 4; x++) {
-    strip.setPixelColor(x, 69, Color(RGB_DIM, 0, 0));
+    strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, 0, 0));
     x++;
-    strip.setPixelColor(x, 69, Color(RGB_DIM, RGB_DIM, RGB_DIM));
+    strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
   }
   // Solid Blue line
   for (; x < 10; x++) {
-    strip.setPixelColor(x, 69, Color(0, 0, RGB_DIM));
+    strip.setPixelColor(x, 69, rgbTo24BitColor(0, 0, RGB_DIM));
   }
-  ShiftMatrixLines();
+  shiftMatrixLines();
   strip.show();
 
   for (row = 0; row < 20; row++) {
     // Red/white
     for (x = 0; x < 4; x++) {
-      strip.setPixelColor(x, 69, Color(RGB_DIM, 0, 0));
+      strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, 0, 0));
       x++;
-      strip.setPixelColor(x, 69, Color(RGB_DIM, RGB_DIM, RGB_DIM));
+      strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
     }
     // White/Blue
     for (x = 4; x < 10; x++) {
-      strip.setPixelColor(x, 69, Color(RGB_DIM, RGB_DIM, RGB_DIM));
+      strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
       x++;
-      strip.setPixelColor(x, 69, Color(0, 0, RGB_DIM));
+      strip.setPixelColor(x, 69, rgbTo24BitColor(0, 0, RGB_DIM));
     }    
-    ShiftMatrixLines();
+    shiftMatrixLines();
     strip.show();  
     // Blue/white
     for (x = 4; x < 10; x++) {
-      strip.setPixelColor(x, 69, Color(0, 0, RGB_DIM));
+      strip.setPixelColor(x, 69, rgbTo24BitColor(0, 0, RGB_DIM));
       x++;
-      strip.setPixelColor(x, 69, Color(RGB_DIM, RGB_DIM, RGB_DIM));
+      strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
     }
-    ShiftMatrixLines();
+    shiftMatrixLines();
     strip.show();
     row++;
 
@@ -438,29 +371,28 @@ void drawUSflag() {
 
   // Red/white
   for (x = 0; x < 4; x++) {
-    strip.setPixelColor(x, 69, Color(RGB_DIM, 0, 0));
+    strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, 0, 0));
     x++;
-    strip.setPixelColor(x, 69, Color(RGB_DIM, RGB_DIM, RGB_DIM));
+    strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
   }
   // Blue line
   for (; x < 10; x++) {
-    strip.setPixelColor(x, 69, Color(0, 0, RGB_DIM));
+    strip.setPixelColor(x, 69, rgbTo24BitColor(0, 0, RGB_DIM));
   }
-  ShiftMatrixLines();
+  shiftMatrixLines();
 
 
   // 10 lines of blank
   for (x = 0; x < 10; x++) {
-    strip.setPixelColor(x, 69, Color(0, 0, 0));
+    strip.setPixelColor(x, 69, rgbTo24BitColor(0, 0, 0));
   }
   for (row = 0; row < 10; row++) {
-    ShiftMatrixLines();
+    shiftMatrixLines();
     strip.show();
   }
 
 }
 
-uint8_t wheel;
 
 void drawInvader(uint8_t invader) {
   uint32_t color;
@@ -468,11 +400,11 @@ void drawInvader(uint8_t invader) {
   for (row = 0; row < 8; row++) {
     for (x = 1; x < 9; x++) {
       if (invader) {
-        strip.setPixelColor(x, 30 + row, ledn[row] & Color(0, 0, 0));
-        strip.setPixelColor(x, 30 + row, ledo[row] & (1<<(x - 1))? Color(0, 0, 0): Color(0, 100, 0));
+        strip.setPixelColor(x, 30 + row, ledn[row] & rgbTo24BitColor(0, 0, 0));
+        strip.setPixelColor(x, 30 + row, ledo[row] & (1<<(x - 1))? rgbTo24BitColor(0, 0, 0): rgbTo24BitColor(0, 100, 0));
       } else {
-        strip.setPixelColor(x, 30 + row, ledo[row] & Color(0, 0, 0));
-        strip.setPixelColor(x, 30 + row, ledn[row] & (1<<(x - 1))? Color(0, 0, 0): Color(0, 100, 0));
+        strip.setPixelColor(x, 30 + row, ledo[row] & rgbTo24BitColor(0, 0, 0));
+        strip.setPixelColor(x, 30 + row, ledn[row] & (1<<(x - 1))? rgbTo24BitColor(0, 0, 0): rgbTo24BitColor(0, 100, 0));
       }
     }
     strip.show();
@@ -484,10 +416,10 @@ void drawHeader() {
   uint16_t x;
 
   for (x = 0; x < 10; x++) {
-    //   color = random(2,4)%2 == 0 ? Color(0,0,0) : Color(0, 255, 0); //Chance of 1/3rd 
-    color = random(2,4)%2 == 0 ? Color(0, 0, 0): Wheel(wheel); //Chance of 1/3rd 
-    //   color = random(2,4)%2 == 0 ? Color(0, 0, 0): Color(255, 255, 255); //Chance of 1/3rd 
-    //   color =  Color(255, 255, 255); //Chance of 1/3rd 
+    //   color = random(2,4)%2 == 0 ? rgbTo24BitColor(0,0,0) : rgbTo24BitColor(0, 255, 0); //Chance of 1/3rd 
+    color = random(2,4)%2 == 0 ? rgbTo24BitColor(0, 0, 0): wheel(wheel); //Chance of 1/3rd 
+    //   color = random(2,4)%2 == 0 ? rgbTo24BitColor(0, 0, 0): rgbTo24BitColor(255, 255, 255); //Chance of 1/3rd 
+    //   color =  rgbTo24BitColor(255, 255, 255); //Chance of 1/3rd 
     strip.setPixelColor(x, 69, color);
     wheel++;
   }
@@ -513,7 +445,7 @@ void drawHeader() {
 //       This will help with the varying voltages as motor load changes, which
 //       will result in varing results depending on load with this current code
 //
-void DrawBattery() {
+void drawBattery() {
   uint32_t color;
   uint16_t x;
   uint8_t row;
@@ -527,7 +459,7 @@ void DrawBattery() {
   // Set 100% to 38v
 
   // Clear screen and measure voltage, since screen load varies it!
-  ClearScreen();
+  clearScreen();
   strip.show();
   delay(1000);
 
@@ -570,104 +502,39 @@ void DrawBattery() {
 
   // Battery Bottom
   for (x = 0; x < 10; x++) {
-    strip.setPixelColor(x, row, Color(RGB_MAX, RGB_MAX, RGB_MAX));
+    strip.setPixelColor(x, row, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
   }
   row++;
 
   // Battery Sides
   for (; row < 49; row++) {
-    strip.setPixelColor(0, row, Color(RGB_MAX, RGB_MAX, RGB_MAX));
-    strip.setPixelColor(9, row, Color(RGB_MAX, RGB_MAX, RGB_MAX));
+    strip.setPixelColor(0, row, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
+    strip.setPixelColor(9, row, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
   }
 
   // Battery Top
   for (x = 0; x < 10; x++) {
-    strip.setPixelColor(x, row, Color(RGB_MAX, RGB_MAX, RGB_MAX));
+    strip.setPixelColor(x, row, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
   }
   row++;
 
   // Battery button
   for (x = 3; x < 7; x++) {
-    strip.setPixelColor(x, row, Color(RGB_MAX, RGB_MAX, RGB_MAX));
-    strip.setPixelColor(x, row+1, Color(RGB_MAX, RGB_MAX, RGB_MAX));
+    strip.setPixelColor(x, row, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
+    strip.setPixelColor(x, row+1, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
   }
   row+=2;
 
   // Battery Level
   for (row = 21; row < 21 + level; row++) {
     for (x = 1; x < 9; x++) {
-      strip.setPixelColor(x, row, Color(0, RGB_DIM, 0));
+      strip.setPixelColor(x, row, rgbTo24BitColor(0, RGB_DIM, 0));
     }
   }
 
   strip.show();
 }
 
-//Shift Matrixrow down
-void ShiftMatrixLines()
-{
-  uint16_t x, y;
-
-  for(y = 0; y < 69; y++)
-  {
-    for(byte x = 0; x < 10;x++)
-    {
-      strip.setPixelColor(x, y, strip.getPixelColor(x, y + 1));         
-    }
-  }
-  delay(50);
-}
-
-// Clear Screen
-void ClearScreen()
-{
-  uint16_t x, y;
-
-  for(y = 0; y < 70; y++)
-  {
-    for(byte x = 0; x < 10;x++)
-    {
-      strip.setPixelColor(x, y, Color(0, 0, 0));         
-    }
-  }
-}
-
-void lines(uint8_t wait) {
-  uint16_t x, y;
-  uint32_t j = 0;
-
-  for (x = 0; x < 10; x++) {
-    for(y = 0; y < 70; y++) {
-      strip.setPixelColor(x, y, Wheel(j));
-      strip.show();
-      delay(wait);
-    }
-    j+=50;
-  }
-}
-
-void drawzagX(uint8_t w, uint8_t h, uint8_t wait) {
-  uint16_t x, y;
-  for (x=0; x<w; x++) {
-    strip.setPixelColor(x, x, 255, 0, 0);
-    strip.show();
-    delay(wait);
-  }
-  for (y=0; y<h; y++) {
-    strip.setPixelColor(w-1-y, y, 0, 0, 255);
-    strip.show();
-    delay(wait);
-  }
-
-}
-
-void drawY(uint8_t startx, uint8_t starty, uint8_t length, uint32_t color) {
-  uint16_t x, y;
-
-  for (y = starty; y < starty + length; y++) {
-    strip.setPixelColor(x, y, color);
-  }
-}
 
 void bounce(uint8_t w, uint8_t h, uint8_t wait) {
   int16_t x = 1;
@@ -694,93 +561,262 @@ void bounce(uint8_t w, uint8_t h, uint8_t wait) {
       y = h-2;
       ydir = - ydir;
     }
-    strip.setPixelColor(x, y, Wheel(j));
+    strip.setPixelColor(x, y, wheel(j));
     strip.show();
     delay(wait);
     strip.setPixelColor(x, y, 0, 0, 0);
   }
 }
 
-/* Helper functions */
 
-// Create a 24 bit color value from R,G,B
-uint32_t Color(byte r, byte g, byte b)
-{
-  uint32_t c;
-  c = r;
-  c <<= 8;
-  c |= g;
-  c <<= 8;
-  c |= b;
-  return c;
+
+
+void setup() {
+
+  uint16_t i;
+
+  // Console for debugging
+  Serial.begin(9600);
+  Serial.println("Goodnight moon!");
+
+  // Set battery level analogue reference
+#ifdef MEGA
+  analogReference(INTERNAL1V1);
+#else
+  //  analogReference(INTERNAL);
+#endif
+  pinMode(BATTERY_PIN, INPUT);
+  pinMode(MOT_PIN, INPUT);
+  pinMode(REMOTE_PIN, INPUT);
+  digitalWrite(REMOTE_PIN, LOW);
+  pinMode(SRELAY_PIN, OUTPUT);
+  pinMode(LRELAY_PIN, OUTPUT);
+  digitalWrite(SRELAY_PIN, HIGH);
+
+  /*
+     TCCR5A = 0;
+     TCCR5B = 0;
+     TCNT5  = 0;
+
+     OCR5A = 31250;            // compare match register 16MHz/256/2Hz
+     TCCR5B |= (1 << WGM12);   // CTC mode
+     TCCR5B |= (1 << CS12);    // 256 prescaler 
+     TIMSK5 |= (1 << OCIE1A);  // enable timer compare interrupt
+   */
+
+
+
+  /*
+     for (uint16_t i = 0; i < 544; i++) {
+     Serial.print("Strip pixel ");
+     Serial.print(i, DEC);
+     Serial.print(" = virt pixel ");
+     Serial.print(strip.pixel_translate[i], DEC);
+     Serial.println(" ");
+     }
+   */
+
+
+  // Space Invader Character
+  // 1st animation for the character
+  ledo[0] = B01000010;
+  ledo[1] = B00100100;
+  ledo[2] = B00111100;
+  ledo[3] = B01111110;
+  ledo[4] = B11111111;
+  ledo[5] = B10111101;
+  ledo[6] = B11000011;
+  ledo[7] = B01100110;
+
+  // 2nd animation for the character
+  ledn[0] = B11000011;
+  ledn[1] = B00100100;
+  ledn[2] = B00111100;
+  ledn[3] = B01011010;
+  ledn[4] = B11111111;
+  ledn[5] = B00111100;
+  ledn[6] = B00100100;
+  ledn[7] = B00100100;
+
+  strip.begin();
+
+  invader = 0;
+
+  // Update LED contents, to start they are all 'off'
+  clearScreen();
+  strip.show();
+
+  //bounce(10, 70, 0);
+
+  drawBattery();
+  delay(10000);
+
+  clearScreen();
+
+#ifdef AUDIO  
+  startMozzi(64);
+  aCos.setFreq(25);
+  aVibrato.setFreq(4);
+#endif
+
 }
 
-//Input a value 0 to 255 to get a color value.
-//The colours are a transition r - g -b - back to r
-uint32_t Wheel(byte WheelPos)
-{
-  if (WheelPos < 85) {
-    return Color(WheelPos * 3, 255 - WheelPos * 3, 0);
-  } else if (WheelPos < 170) {
-    WheelPos -= 85;
-    return Color(255 - WheelPos * 3, 0, WheelPos * 3);
+int16_t loopcnt = 0;
+
+int16_t state = 0;
+// state = 0: lines
+// state = 1: flag
+
+
+void loop() {
+
+#ifdef AUDIO
+  audioHook();
+
+#else
+  if (ledsOn) {
+
+
+    if (loopcnt > 5000) {
+      loopcnt = 0;
+      state++;
+    }
+
+
+    if (state == 0) {
+      drawDistrikt();
+      delay(2000);
+      state = 1;    
+    }
+
+    if (state == 1) {
+      drawHeader();
+      shiftMatrixLines();
+    }  
+
+    if (state == 2) {
+      drawUSflag();
+      loopcnt += 50;
+    }
+
+    if (state == 3) {
+      loopcnt = 0;
+      state = 0;
+      drawBattery();
+      delay(2000);
+      clearScreen();
+    }
+
+    /*
+       drawInvader(invader);
+       delay(500);
+
+       if (invader == 0) {
+       invader = 1;
+       } else {
+       invader = 0;
+       }
+     */
   } else {
-    WheelPos -= 170; 
-    return Color(0, WheelPos * 3, 255 - WheelPos * 3);
+    clearScreen();
+    strip.show();
   }
+#endif
+
+  loopcnt++;
+
 }
 
-uint16_t button_press = 0;
-bool light_state = false;
+#ifdef AUDIO
+uint32_t updateTone = 100;
+
+void updateControl() {
+  uint16_t motSpeed;
+  float f1, f2;
+
+
+  if (updateTone > 5) {
+    motSpeed = analogRead(MOT_PIN);
+
+    f1 = motSpeed / 21.0;
+    f1 += 20;
+    f2 = f1 / 4.0;
+
+    //  Serial.print("update ");
+    //  Serial.println(motSpeed);
+    aCos.setFreq(mtof(f1));
+    aVibrato.setFreq(f2);
+    updateTone = 0;
+  }
+
+
+  updateTone++;  
+}
+
+int updateAudio(){
+  long vibrato = intensity * aVibrato.next();
+  return (int)aCos.phMod(vibrato);
+}
+
+#endif
+
+
+
+uint16_t buttonPress = 0;
+bool lightState = false;
 
 #define HOLD_COUNT 30
 
 void checkButton() {
-  uint16_t remote_position;
-  
-  remote_position = analogRead(REMOTE_PIN);
-//  Serial.print("Remote position ");
-//  Serial.println(remote_position);
-  
+  uint16_t remotePosition;
 
-  
-//  Serial.print("Button position ");
-//  Serial.println(button_press);
-  
-  if (remote_position > 100) {
-    leds_on = true;
+#ifdef MEGA
+  remotePosition = analogRead(REMOTE_PIN);
+  //  Serial.print("Remote position ");
+  //  Serial.println(remotePosition);
+
+
+
+  //  Serial.print("Button position ");
+  //  Serial.println(buttonPress);
+
+  if (remotePosition > 100) {
+    ledsOn = true;
   } else {
-    leds_on = false;
+    ledsOn = false;
   }
-  
-  if (button_press == HOLD_COUNT) {
-    if (light_state == false) {
-      light_state = true;
+
+  if (buttonPress == HOLD_COUNT) {
+    if (lightState == false) {
+      lightState = true;
       digitalWrite(LRELAY_PIN, HIGH);
     } else {
-      if (light_state == true) {
-        light_state = false;
+      if (lightState == true) {
+        lightState = false;
         digitalWrite(LRELAY_PIN, LOW);
       }  
     }
-    button_press = 0;
+    buttonPress = 0;
   }
-  
-  
-  if (remote_position < 400 && remote_position > 100) {
-    button_press++;
-    if (button_press > HOLD_COUNT) {
-      button_press = HOLD_COUNT;
+
+
+  if (remotePosition < 400 && remotePosition > 100) {
+    buttonPress++;
+    if (buttonPress > HOLD_COUNT) {
+      buttonPress = HOLD_COUNT;
     }
   } else {
-    if (button_press > 0) {
-      button_press--;
+    if (buttonPress > 0) {
+      buttonPress--;
     }
   } 
+#else
+  ledsOn = true;
+#endif
 }
 
 void screenHook() {
-   checkButton();
+  checkButton();
 }
 
 
