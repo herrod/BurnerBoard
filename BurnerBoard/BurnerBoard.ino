@@ -26,6 +26,21 @@
 #define DUE 1
 #endif
 
+
+// PINS
+// - SPI: 50 (MISO), 51 (MOSI), 52 (SCK), 53 (SS)
+//- PWM: 2 to 13 and 44 to 46
+//- 36, 42: relays
+//- ID Pins 22, 23, 24, 25
+//  connect inverted - ground the 1's
+//  - 0, rmc - 0,0,0,0 - none
+//  - 1, woodson - 0,0,0, 1 - 25
+//  - 2, ric - 0,0,1,0 - 24
+//  - 3, james - 0,0,1,1 - 24, 25
+//  - 4, steve - 0,1,0,0 - 23
+//  - 5, joon - 0,1,0,1 - 23, 25
+//  - 6, steve x - 0,1,1,0 - 23, 24
+  
 //#define AUDIO 1
 
 // Audio Stuff
@@ -36,6 +51,8 @@ Oscil<COS8192_NUM_CELLS, AUDIO_RATE> aCos(COS8192_DATA);
 Oscil<COS8192_NUM_CELLS, AUDIO_RATE> aVibrato(COS8192_DATA);
 
 #endif
+
+uint16_t boardId = 0;
 
 const long intensity = 300;
 #define AUDIO_MODE STANDARD
@@ -81,6 +98,10 @@ uint8_t ledn[8];
 #define REMOTE_PIN A10
 #define LRELAY_PIN 36
 #define SRELAY_PIN 42
+#define ID_0 25  /25
+#define ID_1 24 //24
+#define ID_2 23 //23
+#define ID_3 22 //22
 #else
 #define REMOTE_PIN A2
 #define LRELAY_PIN 3
@@ -90,7 +111,17 @@ uint8_t ledn[8];
 uint8_t row;
 uint8_t invader;
 
-uint8_t wheel;
+uint8_t wheel_color;
+
+char *boards[] = {
+  "Proto",
+  "Dead",  
+  "Akula 2", 
+  "Ric", 
+  "James", 
+  "Steve",
+  "Joon"};
+  
 
 /* Helper functions */
 
@@ -417,21 +448,56 @@ void drawHeader() {
 
   for (x = 0; x < 10; x++) {
     //   color = random(2,4)%2 == 0 ? rgbTo24BitColor(0,0,0) : rgbTo24BitColor(0, 255, 0); //Chance of 1/3rd 
-    color = random(2,4)%2 == 0 ? rgbTo24BitColor(0, 0, 0): wheel(wheel); //Chance of 1/3rd 
+    color = random(2,4)%2 == 0 ? rgbTo24BitColor(0, 0, 0): wheel(wheel_color); //Chance of 1/3rd 
     //   color = random(2,4)%2 == 0 ? rgbTo24BitColor(0, 0, 0): rgbTo24BitColor(255, 255, 255); //Chance of 1/3rd 
     //   color =  rgbTo24BitColor(255, 255, 255); //Chance of 1/3rd 
     strip.setPixelColor(x, 69, color);
-    wheel++;
+    wheel_color++;
   }
   strip.show();
 }
 
-//#define LEVEL_EMPTY 25886
-//#define LEVEL_FULL 30400
+
+uint16_t readID() {
+ uint16_t bit;
+ uint16_t id;
+ 
+ bit = digitalRead(ID_0);
+ Serial.print(bit, BIN);
+ id = !bit;
+ bit = digitalRead(ID_1);
+ Serial.print(bit, BIN);
+ id |= !bit << 1;
+ bit = digitalRead(ID_2);
+ Serial.print(bit, BIN);
+ id |= !bit << 2; 
+ bit = digitalRead(ID_3);
+ Serial.print(bit, BIN);
+ id |= !bit << 3; 
+
+ Serial.print("Board ID  ");
+ Serial.print(id, DEC);
+ Serial.println("");
+
+ 
+
+ return(id);
+}
 
 
-#define LEVEL_EMPTY 91800
-#define LEVEL_FULL  102400
+// Working on proto, but low end is over
+// = 90% = 30350
+// 38.1 = 100% = 102400
+// 36v = 40% = 96900
+// 10% = 91800
+//#define LEVEL_EMPTY 91800
+//#define LEVEL_FULL  102300
+
+// New settings, 8/17/2013
+// 0 = 92900
+// 100 = 102300
+#define LEVEL_EMPTY 92900
+#define LEVEL_FULL  102300
 
 
 // = 90% = 30350
@@ -592,7 +658,18 @@ void setup() {
   pinMode(SRELAY_PIN, OUTPUT);
   pinMode(LRELAY_PIN, OUTPUT);
   digitalWrite(SRELAY_PIN, HIGH);
-
+  
+// ID Pins  
+  pinMode(ID_0, INPUT);
+  digitalWrite(ID_0, HIGH);
+  pinMode(ID_1, INPUT);
+  digitalWrite(ID_1, HIGH);
+  pinMode(ID_2, INPUT);
+  digitalWrite(ID_2, HIGH);
+  pinMode(ID_3, INPUT);
+  digitalWrite(ID_3, HIGH);
+  
+  
   /*
      TCCR5A = 0;
      TCCR5B = 0;
@@ -616,6 +693,7 @@ void setup() {
      }
    */
 
+  boardId = readID();
 
   // Space Invader Character
   // 1st animation for the character
