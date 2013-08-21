@@ -26,6 +26,8 @@
 #define DUE 1
 #endif
 
+void gif_moondrop();
+
 
 // PINS
 // - SPI: 50 (MISO), 51 (MOSI), 52 (SCK), 53 (SS)
@@ -730,7 +732,11 @@ void setup() {
   delay(10000);
 
   clearScreen();
-
+  
+  for (i = 0; i < 10; i++) {
+  gif_moondrop();
+  }
+  
 #ifdef AUDIO
   startMozzi(64);
   aCos.setFreq(25);
@@ -1601,6 +1607,8 @@ strip.setPixelColor(7, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(8, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(9, 69, rgbTo24BitColor(65535, 21845, 21845));
 delay(100);
+  strip.show();
+
 strip.setPixelColor(0, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(1, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(2, 0, rgbTo24BitColor(65535, 21845, 21845));
@@ -2302,6 +2310,8 @@ strip.setPixelColor(7, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(8, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(9, 69, rgbTo24BitColor(65535, 21845, 21845));
 delay(100);
+  strip.show();
+
 strip.setPixelColor(0, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(1, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(2, 0, rgbTo24BitColor(65535, 21845, 21845));
@@ -3003,6 +3013,9 @@ strip.setPixelColor(7, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(8, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(9, 69, rgbTo24BitColor(65535, 21845, 21845));
 delay(100);
+  strip.show();
+
+
 strip.setPixelColor(0, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(1, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(2, 0, rgbTo24BitColor(65535, 21845, 21845));
@@ -3704,6 +3717,8 @@ strip.setPixelColor(7, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(8, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(9, 69, rgbTo24BitColor(65535, 21845, 21845));
 delay(100);
+  strip.show();
+
 strip.setPixelColor(0, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(1, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(2, 0, rgbTo24BitColor(65535, 21845, 21845));
@@ -4405,6 +4420,7 @@ strip.setPixelColor(7, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(8, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(9, 69, rgbTo24BitColor(65535, 21845, 21845));
 delay(100);
+  strip.show();
 strip.setPixelColor(0, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(1, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(2, 0, rgbTo24BitColor(65535, 21845, 21845));
@@ -5106,6 +5122,7 @@ strip.setPixelColor(7, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(8, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(9, 69, rgbTo24BitColor(65535, 21845, 21845));
 delay(100);
+  strip.show();
 strip.setPixelColor(0, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(1, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(2, 0, rgbTo24BitColor(65535, 21845, 21845));
@@ -5807,6 +5824,7 @@ strip.setPixelColor(7, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(8, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(9, 69, rgbTo24BitColor(65535, 21845, 21845));
 delay(100);
+  strip.show();
 strip.setPixelColor(0, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(1, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(2, 0, rgbTo24BitColor(65535, 21845, 21845));
@@ -6508,6 +6526,7 @@ strip.setPixelColor(7, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(8, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(9, 69, rgbTo24BitColor(65535, 21845, 21845));
 delay(100);
+  strip.show();
 strip.setPixelColor(0, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(1, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(2, 0, rgbTo24BitColor(65535, 21845, 21845));
@@ -7209,6 +7228,7 @@ strip.setPixelColor(7, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(8, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(9, 69, rgbTo24BitColor(65535, 21845, 21845));
 delay(100);
+  strip.show();
 strip.setPixelColor(0, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(1, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(2, 0, rgbTo24BitColor(65535, 21845, 21845));
@@ -7910,6 +7930,8 @@ strip.setPixelColor(7, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(8, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(9, 69, rgbTo24BitColor(65535, 21845, 21845));
 delay(100);
+  strip.show();
+
 strip.setPixelColor(0, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(1, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(2, 0, rgbTo24BitColor(65535, 21845, 21845));
@@ -8611,6 +8633,7 @@ strip.setPixelColor(7, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(8, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(9, 69, rgbTo24BitColor(65535, 21845, 21845));
 delay(100);
+  strip.show();
 strip.setPixelColor(0, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(1, 0, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(2, 0, rgbTo24BitColor(65535, 21845, 21845));
@@ -9312,4 +9335,6 @@ strip.setPixelColor(7, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(8, 69, rgbTo24BitColor(65535, 21845, 21845));
 strip.setPixelColor(9, 69, rgbTo24BitColor(65535, 21845, 21845));
 delay(100);
+  strip.show();
+
 }
