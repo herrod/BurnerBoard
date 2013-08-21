@@ -98,10 +98,12 @@ uint8_t ledn[8];
 #define REMOTE_PIN A10
 #define LRELAY_PIN 36
 #define SRELAY_PIN 42
-#define ID_0 25  /25
-#define ID_1 24 //24
-#define ID_2 23 //23
-#define ID_3 22 //22
+
+#define ID_0 25 
+#define ID_1 24 
+#define ID_2 23 
+#define ID_3 22 
+
 #else
 #define REMOTE_PIN A2
 #define LRELAY_PIN 3
@@ -473,15 +475,14 @@ uint16_t readID() {
  id |= !bit << 2; 
  bit = digitalRead(ID_3);
  Serial.print(bit, BIN);
- id |= !bit << 3; 
-
+ id |= !bit << 3;
+ 
  Serial.print("Board ID  ");
  Serial.print(id, DEC);
  Serial.println("");
 
- 
-
  return(id);
+
 }
 
 
