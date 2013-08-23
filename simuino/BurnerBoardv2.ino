@@ -578,8 +578,13 @@ void setup() {
 
         //bounce(10, 70, 0);
 
+	strip.print("Proto", 20, 0, 1);
+        strip.show();
+        delay(10000);
+
+
         DrawBattery();
-        //  delay(10000);
+        delay(10000);
 
         ClearScreen();
 }
@@ -619,7 +624,7 @@ void loop() {
 
 }
 
-void vScreenHook() {
+void screenHook() {
         pinMode(30, OUTPUT);
         digitalWrite(30, HIGH);
 }

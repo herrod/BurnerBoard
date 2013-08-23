@@ -1,2 +1,4 @@
 # Servuino Time Delay (microseconds) Version: 0.1.2
-+ 8 1000000
++ 8 10000000
++ 11 1000000
++ 24 10000000

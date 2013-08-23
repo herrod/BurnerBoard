@@ -1,5 +1,8 @@
 #include "SPI.h"
 #include "Board_WS2801.h"
+#include <Adafruit_GFX.h>
+#include "Print.h"
+
 
 /*****************************************************************************/
 
@@ -71,7 +74,8 @@ extern void screenHook();
 #define NUM_REAL_BOARD_PIXELS 544
 
 // Constructor for use with hardware SPI (specific clock/data pins):
-Board_WS2801::Board_WS2801(uint16_t n, uint8_t order) {
+// Todo: need to update dynamic width/height for future boards
+Board_WS2801::Board_WS2801(uint16_t n, uint8_t order)  : Adafruit_GFX(70, 10) {
   rgb_order = order;
   alloc(n);
   translationArray(NUM_REAL_BOARD_PIXELS);
@@ -79,7 +83,7 @@ Board_WS2801::Board_WS2801(uint16_t n, uint8_t order) {
 }
 
 // Constructor for use with arbitrary clock/data pins:
-Board_WS2801::Board_WS2801(uint16_t n, uint8_t dpin, uint8_t cpin, uint8_t order) {
+Board_WS2801::Board_WS2801(uint16_t n, uint8_t dpin, uint8_t cpin, uint8_t order) : Adafruit_GFX(70, 10) {
   rgb_order = order;
   alloc(n);
   translationArray(NUM_REAL_BOARD_PIXELS);
@@ -92,7 +96,7 @@ Board_WS2801::Board_WS2801(uint16_t n, uint8_t dpin, uint8_t cpin, uint8_t order
 // other function calls with provide access to pixels via an x,y coordinate system
 // Board is x,y swapped to original Adafruit matrix.
 // It starts 10x70 starts at 0,0, on to 69,0, then 69,1 to 0,1, and so on
-Board_WS2801::Board_WS2801(uint16_t w, uint16_t h, uint8_t dpin, uint8_t cpin, uint8_t order) {
+Board_WS2801::Board_WS2801(uint16_t w, uint16_t h, uint8_t dpin, uint8_t cpin, uint8_t order) : Adafruit_GFX(70, 10) {
   rgb_order = order;
   alloc(w * h);
   translationArray(NUM_REAL_BOARD_PIXELS);
@@ -101,13 +105,27 @@ Board_WS2801::Board_WS2801(uint16_t w, uint16_t h, uint8_t dpin, uint8_t cpin, u
   updatePins(dpin, cpin);
 }
 
-Board_WS2801::Board_WS2801(uint16_t w, uint16_t h, uint8_t order) {
+Board_WS2801::Board_WS2801(uint16_t w, uint16_t h, uint8_t order)  : Adafruit_GFX(70, 10) {
   rgb_order = order;
   alloc(w * h);
   translationArray(NUM_REAL_BOARD_PIXELS);
   width = w;
   height = h;
   updatePins();
+}
+
+// via Michael Vogt/neophob: empty constructor is used when strand length
+// isn't known at compile-time; situations where program config might be
+// read from internal flash memory or an SD card, or arrive via serial
+// command.  If using this constructor, MUST follow up with updateLength()
+// and updatePins() to establish the strand length and output pins!
+// Also, updateOrder() to change RGB vs GRB order (RGB is default).
+Board_WS2801::Board_WS2801(void) : Adafruit_GFX(70, 10) {
+  begun     = false;
+  numvirtLEDs   = 0;
+  pixels    = NULL;
+  rgb_order = WS2801_RGB;
+  updatePins(); // Must assume hardware SPI until pins are set
 }
 
 // Allocate 3 bytes per pixel, init to RGB 'off' state:
@@ -147,19 +165,7 @@ void Board_WS2801::translationArray(uint16_t n) {
   }
 }
 
-// via Michael Vogt/neophob: empty constructor is used when strand length
-// isn't known at compile-time; situations where program config might be
-// read from internal flash memory or an SD card, or arrive via serial
-// command.  If using this constructor, MUST follow up with updateLength()
-// and updatePins() to establish the strand length and output pins!
-// Also, updateOrder() to change RGB vs GRB order (RGB is default).
-Board_WS2801::Board_WS2801(void) {
-  begun     = false;
-  numvirtLEDs   = 0;
-  pixels    = NULL;
-  rgb_order = WS2801_RGB;
-  updatePins(); // Must assume hardware SPI until pins are set
-}
+
 
 // Release memory (as needed):
 Board_WS2801::~Board_WS2801(void) {
@@ -430,5 +436,51 @@ uint32_t Board_WS2801::BoardPixel(uint32_t pixel) {
 
   return newpixel;
 }  
+
+// Functions for GFX Library
+
+// Pass 8-bit (each) R,G,B, get back 16-bit packed color
+uint16_t Board_WS2801::Color565(uint8_t r, uint8_t g, uint8_t b) {
+  return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+}
+
+// Pass 8-bit (each) R,G,B, get back 16-bit packed color
+uint32_t Color2rgb(uint16_t color) {
+  uint32_t r, g, b;
+  uint32_t return_color;
+
+  r = color & 0xf800;
+	r = r << (5 + 3);
+	
+  g = color & 0x7e0;
+	g = g << (3 + 2);
+
+  b = color & 0x1F;
+	b = b << (0 + 3);	
+	
+  return_color = r | g | b;
+
+  return return_color;
+}
+
+// Callback from GFX engine to draw pixel on the board
+void Board_WS2801::drawPixel(int16_t x, int16_t y, uint16_t color) {
+
+	// calculate x offset first
+  uint16_t offset = (69 - x) % height;
+  // add x offset
+  offset += (9 - y) * height;
+  setPixelColor(offset, Color2rgb(color));
+
+}
+
+void Board_WS2801::print(char *string, uint8_t x, uint8_t y, uint8_t size) {
+		  setTextSize(size);
+		  setTextColor(Color565(255, 255, 255));
+//		  fillRect(x, y,  7 * size * strlen(string) + 1, 7 * size, Color565(0, 0, 0));
+//		  setRotation(1);
+		  setCursor(x, y);
+		  Adafruit_GFX::print(string);	
+}
 
 

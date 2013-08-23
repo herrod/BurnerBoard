@@ -5,6 +5,10 @@
 #include <pins_arduino.h>
 #endif
 
+#include <Adafruit_GFX.h>
+#include "Print.h"
+
+
 // Not all LED pixels are RGB order; 36mm type expects GRB data.
 // Optional flag to constructors indicates data order (default if
 // unspecified is RGB).  As long as setPixelColor/getPixelColor are
@@ -13,7 +17,7 @@
 #define WS2801_RGB 0
 #define WS2801_GRB 1
 
-class Board_WS2801 {
+class Board_WS2801 : public Adafruit_GFX {
 
   public:
 
@@ -28,6 +32,11 @@ class Board_WS2801 {
     // Release memory (as needed):
     ~Board_WS2801();
 
+    // GFX Library
+		void drawPixel(int16_t x, int16_t y, uint16_t color);
+		uint16_t Color565(uint8_t r, uint8_t g, uint8_t b);
+	  
+
     void
       begin(void),
       show(void),
@@ -38,7 +47,9 @@ class Board_WS2801 {
       updatePins(uint8_t dpin, uint8_t cpin), // Change pins, configurable
       updatePins(void), // Change pins, hardware SPI
       updateLength(uint16_t n), // Change strand length
-      updateOrder(uint8_t order); // Change data order
+      updateOrder(uint8_t order), // Change data order
+      print(char *string, uint8_t x, uint8_t y, uint8_t size);
+
 
     uint16_t
       numPixels(void),

@@ -1531,7 +1531,7 @@ int loadSketch(char sketch[])
 
   instrument(sketch,fileServSketch);
 
-  sprintf(syscom,"cd servuino; g++ -g -o servuino Board_WS2801.o servuino.c > g++.result 2>&1;");
+  sprintf(syscom,"cd servuino; g++ -g -o servuino Board_WS2801.o Adafruit_GFX.o Print.o servuino.c > g++.result 2>&1;");
   x=system(syscom);
 
   x=countRowsInFile(fileServComp);

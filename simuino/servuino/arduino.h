@@ -1,3 +1,7 @@
+#ifndef ARDUINO_H
+#define ARDUINO_H
+
+
 #include <iostream>
 using std::cerr;
 using std::cout;
@@ -68,6 +72,8 @@ void delayX(int x,int ms);
 void delayMicrosecondsX(int x,int us);
 void attachInterruptX(int x,int ir,void(*func)(),int mode);
 void detachInterruptX(int x,int ir);
+
+#ifndef ALREADY_DEFINED_VARS
 
 int A0;
 int A1;
@@ -352,7 +358,7 @@ unsigned int B11111101=B11111101; // 253
 unsigned int B11111110=B11111110; // 254
 unsigned int B11111111=B11111111; // 255
 
-
+#endif
 
 class String
 {
@@ -481,4 +487,7 @@ class serial {
   void printlnX(int z);
   void writeX(int z,char *p);
 };
+#ifndef ALREADY_DEFINED_VARS
 serial Serial,Serial1,Serial2,Serial3;
+#endif
+#endif
