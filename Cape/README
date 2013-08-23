@@ -1,0 +1,13 @@
+
+To compile and flash this .ino file to the board:
+
+- Copy Cape.ino from this Cape directory to the libraries directory
+- From within the Arduino IDE:
+  - add the FastSPI_LED2.cpp library i
+  - open Cape.ino
+  - it will ask you to create a sketch folder, which it will move the file into
+
+Then you are good to upload. 
+
+For the 2013 Burning Man cape, we're using the Arduino Nano.
+
