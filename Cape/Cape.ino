@@ -44,10 +44,15 @@ void setup() {
 // This function runs over and over, and is where you do the magic to light
 // your leds.
 void loop() {
-   // Move a single white led 
-   for(int whiteLed = 0; whiteLed < NUM_LEDS; whiteLed = whiteLed + 1) {
+
+   // Move a single white led from LED 0 to LED MAX/2
+   // Simultaneously move a single white led from LED MAX to LED MAX/2
+   for(int whiteLed = 0; whiteLed < (NUM_LEDS/2); whiteLed = whiteLed + 1) {
       // Turn our current led on to white, then show the leds
       leds[whiteLed] = CRGB::White;
+
+      // Do the same thing counting backwards from the end
+      leds[NUM_LEDS-whiteLed] = CRGB::White;
 
       // Show the leds (only one of which is set to white, from above)
       FastLED.show();
@@ -57,5 +62,6 @@ void loop() {
 
       // Turn our current led back to black for the next loop around
       leds[whiteLed] = CRGB::Black;
+      leds[NUM_LEDS-whiteLed] = CRGB::Black;
    }
 }
