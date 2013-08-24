@@ -203,13 +203,13 @@ void loop() {
   loopCount++;
   SymmetricWavePattern(WHITE);
   
-  if ((loopCount % 50)) {
+  if ((loopCount % 50) == 0) {
     PatriotPattern(); 
   }
-  if ((loopCount % 75) {
+  if ((loopCount % 75) == 0) {
    SymmetricRandomColorPattern();
   }
-  if (!loopCount % 100)) {
+  if ((loopCount % 100) == 0) {
     RainbowPattern();
   }  
 }
