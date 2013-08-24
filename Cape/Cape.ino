@@ -103,8 +103,7 @@ int SymmetricWavePattern(CRGB color) {
 }
 
 //
-// Move a single led from LED 0 to the halfway point. Simultaneously 
-// move a led from LED NUM_LEDS backwards to the halfway point.
+// Move a single led from LED 0 to the end.
 //
 int SingleLinePattern(CRGB color) {
   
@@ -133,7 +132,7 @@ int RainbowPattern() {
   SymmetricWavePattern(YELLOW);
   SymmetricWavePattern(GREEN);
   SymmetricWavePattern(BLUE);
-  SymmetricWavePattern(PURPLE);
+  SymmetricWavePattern(INDIGO);
   SymmetricWavePattern(PURPLE);
   
 }
@@ -200,13 +199,14 @@ void loop() {
   loopCount++;
   SymmetricWavePattern(WHITE);
   
-  if (loopCount > 100) {
+  if (loopCount == 100) {
     PatriotPattern(); 
-    SymmetricWavePattern(BLACK);
+  }
+  if (loopCount == 200) {
     AllOnRandomPattern();
-    SymmetricWavePattern(BLACK);
+  }
+  if (loopCount == 300) {
     RainbowPattern();
     loopCount = 0;
   }  
- 
 }
