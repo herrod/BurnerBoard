@@ -74,7 +74,7 @@ void setup() {
       // FastLED.addLeds<LPD8806, DATA_PIN, CLOCK_PIN, RGB>(leds, NUM_LEDS);
       
   // Temporarily ratchet down so it doesn't kill the USB port
-  LEDS.setBrightness(64);
+  // LEDS.setBrightness(64);
 
 }
 
@@ -110,10 +110,12 @@ int SingleLinePattern(CRGB color) {
    for(int i = 1; i < NUM_LEDS; i++) {
 
       leds[i] = color;
+
       FastLED.show();
 
       // Wait a little bit
       delay(50);
+
       // Turn the led back to black for the next loop around
       leds[i] = BLACK;
    }
@@ -176,16 +178,20 @@ int PatriotPattern() {
 }
 
 //
-// Turn the whole string on with each one being a random color
+// Same thing, but random colors rather than white
 //
-int AllOnRandomPattern() {
+int SymmetricRandomColorPattern() {
   
-  for (int i=1; i<NUM_LEDS; i++) {
+  for (int i=1; i<(NUM_LEDS/2); i++) {
     byte rand = random8() % MAX_COLORS;
     
     leds[i] = colorArray[rand];
+    leds[NUM_LEDS-i] = colorArray[rand];
+    delay(200);
     FastLED.show();
-    delay(100);
+    leds[i] = BLACK;    
+    leds[NUM_LEDS-i] = BLACK;
+
   }  
 }
 
@@ -197,14 +203,13 @@ void loop() {
   loopCount++;
   SymmetricWavePattern(WHITE);
   
-  if (loopCount == 100) {
+  if ((loopCount % 50)) {
     PatriotPattern(); 
   }
-  if (loopCount == 200) {
-    AllOnRandomPattern();
+  if ((loopCount % 75) {
+   SymmetricRandomColorPattern();
   }
-  if (loopCount == 300) {
+  if (!loopCount % 100)) {
     RainbowPattern();
-    loopCount = 0;
   }  
 }
