@@ -119,24 +119,24 @@ uint8_t invader;
 uint8_t wheel_color;
 
 char *boards[] = {
-  "Proto",
-  "Proto",
-  "Akula",  
-  "Point", 
-  "Goofy", 
-  "Steve", 
-  "Joon",
-  "Artemis"};
+  "PROTO",
+  "PROTO",
+  "AKULA",  
+  "POINT B", 
+  "GOOFY", 
+  "STEVE", 
+  "JOON",
+  "ARTEMIS"};
   
 char *names[] = {
-  "Proto",
-  "Proto",
-  "Woodson",  
-  "Ric", 
-  "Steve", 
-  "Steve", 
-  "Joon",
-  "James"};
+  "RICHARD",
+  "RICHARD",
+  "WOODSON",  
+  "RIC", 
+  "STEVE", 
+  "STEVE", 
+  "JOON",
+  "JAMES"};
   
   
 /* Helper functions */
