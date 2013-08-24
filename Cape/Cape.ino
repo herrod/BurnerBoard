@@ -6,7 +6,10 @@
 //
 // Derived from the FastSPI_LED2 FirstLight example
 //
+// Copyright 2013
+//
 // Blame Steve Herrod as needed.
+//
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 // How many leds are in the strip?
@@ -100,6 +103,27 @@ int SymmetricWavePattern(CRGB color) {
 }
 
 //
+// Move a single led from LED 0 to the halfway point. Simultaneously 
+// move a led from LED NUM_LEDS backwards to the halfway point.
+//
+int SingleLinePattern(CRGB color) {
+  
+   for(int i = 1; i < NUM_LEDS; i++) {
+
+      leds[i] = color;
+
+      FastLED.show();
+
+      // Wait a little bit
+      delay(50);
+
+      // Turn the led back to black for the next loop around
+      leds[i] = BLACK;
+   }
+   return 0;
+}
+
+//
 // Rainbow time
 //
 int RainbowPattern() {
@@ -123,6 +147,10 @@ int PatriotPattern() {
   SymmetricWavePattern(WHITE);
   SymmetricWavePattern(BLUE);
   
+  SingleLinePattern(RED);
+  SingleLinePattern(WHITE);
+  SingleLinePattern(BLUE);
+  
   // Now do a single run down the lights going patriot mode
   for(int led = 1; led < NUM_LEDS; led++) {
       switch(led%3) {
@@ -131,7 +159,7 @@ int PatriotPattern() {
         case 0: leds[led] = BLUE; break;
       }
       FastLED.show();
-      delay(100);
+      delay(300);
       leds[led] = BLACK;
     }
 
@@ -172,7 +200,7 @@ void loop() {
   loopCount++;
   SymmetricWavePattern(WHITE);
   
-  if ((loopCount > 100)) {
+  if (loopCount > 100) {
     PatriotPattern(); 
     SymmetricWavePattern(BLACK);
     AllOnRandomPattern();
