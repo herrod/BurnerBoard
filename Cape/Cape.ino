@@ -6,9 +6,7 @@
 //
 // Derived from the FastSPI_LED2 FirstLight example
 //
-// Copyright 2013
-//
-// Blame Steve Herrod as needed.
+// Copyright 2013 - Steve Herrod, Richard McDougall, et al.
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -22,19 +20,21 @@
 //#define CLOCK_PIN 8
 
 // Simplify dealings with the colors
-#define WHITE CRGB::White
-#define BLACK CRGB::Black
-#define BLUE  CRGB::Blue
-#define GREEN CRGB::Green
+#define WHITE  CRGB::White
+#define BLACK  CRGB::Black
+#define BLUE   CRGB::Blue
+#define GREEN  CRGB::Green
 #define YELLOW CRGB::Yellow
 #define PINK   CRGB::Pink
 #define RED    CRGB::Red
 #define ORANGE CRGB::Orange
 #define PURPLE CRGB::Purple
 #define INDIGO CRGB::Indigo
-#define MAX_COLORS 10
+#define TEAL   CRGB::Teal
 
-CRGB colorArray[MAX_COLORS] = {WHITE, BLACK, BLUE, GREEN, YELLOW, PINK, RED, ORANGE, PURPLE, INDIGO};
+#define MAX_COLORS 11
+
+CRGB colorArray[MAX_COLORS] = {WHITE, BLACK, BLUE, GREEN, YELLOW, PINK, RED, ORANGE, PURPLE, INDIGO, TEAL};
 
 
 // We'll use these for random color patterns
