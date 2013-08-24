@@ -55,16 +55,16 @@ void loop() {
    for(int whiteLed = 1; whiteLed < (NUM_LEDS/2); whiteLed = whiteLed + 1) {
 
       // Turn our current led on to white, then show the leds
-      leds[whiteLed] = CRGB::Blue;
+      leds[whiteLed] = CRGB::White;
 
       // Do the same thing counting backwards from the end
-      leds[(NUM_LEDS-whiteLed)] = CRGB::Blue;
+      leds[(NUM_LEDS-whiteLed)] = CRGB::White;
 
       // Show the leds (two of which are lit)
       FastLED.show();
 
       // Wait a little bit
-      delay(500);
+      delay(150);
 
       // Turn the leds back to black for the next loop around
       leds[whiteLed] = CRGB::Black;
