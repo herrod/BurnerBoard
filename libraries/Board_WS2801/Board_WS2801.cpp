@@ -483,4 +483,15 @@ void Board_WS2801::print(char *string, uint8_t x, uint8_t y, uint8_t size) {
 		  Adafruit_GFX::print(string);	
 }
 
+void Board_WS2801::circles(uint8_t x, uint8_t y, uint8_t size) {
+//		  setTextSize(size);
+//`		  setTextColor(Color565(255, 255, 255));
+//		  fillRect(x, y,  7 * size * strlen(string) + 1, 7 * size, Color565(0, 0, 0));
+//		  setRotation(1);
+		  setCursor(x, y);
+//		  Adafruit_GFX::print(string);	
+      Adafruit_GFX::fillCircle(x,y,size,Color565(255, 255, 255));
+ 
+}
+
 

@@ -529,7 +529,7 @@ void setup() {
 
         // Console for debugging
         Serial.begin(9600);
- //       Serial.println("Goodnight moon!");
+        Serial.println("Goodnight moon!");
 
         // Set battery level analogue reference
         //  analogReference(INTERNAL1V1);
@@ -568,24 +568,23 @@ void setup() {
 
 
 
-        ClearScreen();
         strip.begin();
 
         invader = 0;
 
         // Update LED contents, to start they are all 'off'
-//        ClearScreen();
+        ClearScreen();
         strip.show();
 
         //bounce(10, 70, 0);
 
-//	strip.print("Proto", 20, 0, 1);
-//        strip.show();
-//        delay(10000);
+	strip.print("Proto", 20, 0, 1);
+        strip.show();
+        delay(10000);
 
 
-//        DrawBattery();
-//        delay(10000);
+        DrawBattery();
+        delay(10000);
 
         ClearScreen();
 }

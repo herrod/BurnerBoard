@@ -1,3 +1,35 @@
-In file included from servuino.c:139:
-sketch.ino: In function ‘void setup()’:
-sketch.ino:581: warning: deprecated conversion from string constant to ‘char*’
+In file included from servuino.c:139:0:
+sketch.ino:116:9: error: conflicting declaration 'uint8_t row'
+ uint8_t row;
+         ^
+servuino.c:58:7: error: 'row' has a previous declaration as 'int row'
+ int   row,col;
+       ^
+In file included from servuino.c:139:0:
+sketch.ino:129:12: warning: deprecated conversion from string constant to 'char*' [-Wwrite-strings]
+   "ARTEMIS"};
+            ^
+sketch.ino:129:12: warning: deprecated conversion from string constant to 'char*' [-Wwrite-strings]
+sketch.ino:129:12: warning: deprecated conversion from string constant to 'char*' [-Wwrite-strings]
+sketch.ino:129:12: warning: deprecated conversion from string constant to 'char*' [-Wwrite-strings]
+sketch.ino:129:12: warning: deprecated conversion from string constant to 'char*' [-Wwrite-strings]
+sketch.ino:129:12: warning: deprecated conversion from string constant to 'char*' [-Wwrite-strings]
+sketch.ino:129:12: warning: deprecated conversion from string constant to 'char*' [-Wwrite-strings]
+sketch.ino:129:12: warning: deprecated conversion from string constant to 'char*' [-Wwrite-strings]
+sketch.ino:139:10: warning: deprecated conversion from string constant to 'char*' [-Wwrite-strings]
+   "JAMES"};
+          ^
+sketch.ino:139:10: warning: deprecated conversion from string constant to 'char*' [-Wwrite-strings]
+sketch.ino:139:10: warning: deprecated conversion from string constant to 'char*' [-Wwrite-strings]
+sketch.ino:139:10: warning: deprecated conversion from string constant to 'char*' [-Wwrite-strings]
+sketch.ino:139:10: warning: deprecated conversion from string constant to 'char*' [-Wwrite-strings]
+sketch.ino:139:10: warning: deprecated conversion from string constant to 'char*' [-Wwrite-strings]
+sketch.ino:139:10: warning: deprecated conversion from string constant to 'char*' [-Wwrite-strings]
+sketch.ino:139:10: warning: deprecated conversion from string constant to 'char*' [-Wwrite-strings]
+sketch.ino: In function 'void setup()':
+sketch.ino:682:19: error: 'INTERNAL1V1' was not declared in this scope
+   analogReference(INTERNAL1V1);
+                   ^
+sketch.ino:682:30: error: 'analogReference' was not declared in this scope
+   analogReference(INTERNAL1V1);
+                              ^

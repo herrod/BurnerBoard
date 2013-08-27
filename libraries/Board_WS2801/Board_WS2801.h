@@ -48,7 +48,8 @@ class Board_WS2801 : public Adafruit_GFX {
       updatePins(void), // Change pins, hardware SPI
       updateLength(uint16_t n), // Change strand length
       updateOrder(uint8_t order), // Change data order
-      print(char *string, uint8_t x, uint8_t y, uint8_t size);
+      print(char *string, uint8_t x, uint8_t y, uint8_t size),
+      circles(uint8_t x, uint8_t y, uint8_t size);
 
 
     uint16_t
