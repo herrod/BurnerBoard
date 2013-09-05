@@ -196,8 +196,20 @@ void shiftMatrixLines()
   {
     for(byte x = 0; x < 10;x++)
     {
-      strip.setPixelColor(x, y, strip.getPixelColor(x, y + 1));         
+      strip.setPixelColor(x, y, strip.getPixelColor(x, y + 1));
     }
+  }
+  delay(50);
+}
+
+// I see blondes, brunets, redheads...
+void shiftMatrixCircles()
+{
+  uint16_t x;
+
+  for(x = 35; x < 69; x++)
+  {
+      strip.drawCircle(69 - x, 5, x - 35, strip.getPixelColor(5, x + 1));
   }
   delay(50);
 }
@@ -599,6 +611,17 @@ void drawHeader() {
   strip.show();
 }
 
+void drawCenter() {
+  uint32_t color;
+  uint16_t x;
+
+    color = random(2,4)%2 == 0 ? rgbTo24BitColor(0, 0, 0): wheel(wheel_color); //Chance of 1/3rd 
+//    color = rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX);
+    strip.fillCircle(35, 5, 1, color);
+    wheel_color++;
+    strip.show();
+}
+
 
 uint16_t readID() {
  uint16_t bit;
@@ -874,10 +897,11 @@ void setup() {
   delay(5000);
 
   //test zone
-  clearScreen();
+//  clearScreen();
+//  strip.fillCircle(35, 5, 3, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
   //strip.circles(15, 5, 5);
-  strip.show();
-  delay(500);
+//  strip.show();
+//  delay(5000);
   
 //  for (i = 0; i < 500; i++) {
 //    rainbowCycle(1);
@@ -927,6 +951,10 @@ void loop() {
       delay(5000);
       state = 1;    
     }
+//    if (state == 0) {
+//      drawCenter();
+//      shiftMatrixCircles();
+//    }  
 
     if (state == 1) {
       drawHeader();

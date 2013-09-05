@@ -483,15 +483,17 @@ void Board_WS2801::print(char *string, uint8_t x, uint8_t y, uint8_t size) {
 		  Adafruit_GFX::print(string);	
 }
 
-void Board_WS2801::circles(uint8_t x, uint8_t y, uint8_t size) {
-//		  setTextSize(size);
-//`		  setTextColor(Color565(255, 255, 255));
-//		  fillRect(x, y,  7 * size * strlen(string) + 1, 7 * size, Color565(0, 0, 0));
-//		  setRotation(1);
-		  setCursor(x, y);
-//		  Adafruit_GFX::print(string);	
-      Adafruit_GFX::fillCircle(x,y,size,Color565(255, 255, 255));
- 
+void Board_WS2801::fillCircle(uint8_t x, uint8_t y, uint8_t size, uint16_t color) {
+      Adafruit_GFX::fillCircle(x,y,size,color);
 }
 
+//TBD chat to RMC on x y swap
+void Board_WS2801::drawCircle(uint8_t x, uint8_t y, uint8_t size, uint16_t color) {
+      Adafruit_GFX::drawCircle(x,y,size,color);
+}
+
+void Board_WS2801::drawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
+      int16_t x2, int16_t y2, uint16_t color) {
+      Adafruit_GFX::drawTriangle(x0, y0, x1, y1, x2, y2, color);
+}
 
