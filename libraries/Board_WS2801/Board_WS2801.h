@@ -35,7 +35,7 @@ class Board_WS2801 : public Adafruit_GFX {
     // GFX Library
 		void drawPixel(int16_t x, int16_t y, uint16_t color);
 		uint16_t Color565(uint8_t r, uint8_t g, uint8_t b);
-	  
+	
 
     void
       begin(void),
@@ -48,7 +48,12 @@ class Board_WS2801 : public Adafruit_GFX {
       updatePins(void), // Change pins, hardware SPI
       updateLength(uint16_t n), // Change strand length
       updateOrder(uint8_t order), // Change data order
-      print(char *string, uint8_t x, uint8_t y, uint8_t size);
+      print(char *string, uint8_t x, uint8_t y, uint8_t size),
+      fillCircle(uint8_t x, uint8_t y, uint8_t size, uint16_t color),
+      drawCircle(uint8_t x, uint8_t y, uint8_t size, uint16_t color),
+      drawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
+      int16_t x2, int16_t y2, uint16_t color);
+
 
 
     uint16_t

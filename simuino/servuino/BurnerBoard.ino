@@ -1,4 +1,4 @@
-#include "SPI.h"
+//#include "SPI.h"
 #include <Adafruit_GFX.h>
 #include "Board_WS2801.h"
 #include "Print.h"
@@ -102,10 +102,10 @@ uint8_t ledn[8];
 #define LRELAY_PIN 36
 #define SRELAY_PIN 42
 
-#define ID_0 25
-#define ID_1 24
-#define ID_2 23
-#define ID_3 22
+#define ID_0 25 
+#define ID_1 24 
+#define ID_2 23 
+#define ID_3 22 
 
 #else
 #define REMOTE_PIN A2
@@ -122,7 +122,7 @@ char *boards[] = {
   "PROTO",
   "PROTO",
   "AKULA",  
-  "BOADIE", 
+  "POINT B", 
   "GOOFY", 
   "STEVE", 
   "JOON",
@@ -196,20 +196,8 @@ void shiftMatrixLines()
   {
     for(byte x = 0; x < 10;x++)
     {
-      strip.setPixelColor(x, y, strip.getPixelColor(x, y + 1));
+      strip.setPixelColor(x, y, strip.getPixelColor(x, y + 1));         
     }
-  }
-  delay(50);
-}
-
-// I see blondes, brunets, redheads...
-void shiftMatrixCircles()
-{
-  uint16_t x;
-
-  for(x = 35; x < 69; x++)
-  {
-      strip.drawCircle(69 - x, 5, x - 35, strip.getPixelColor(5, x + 1));
   }
   delay(50);
 }
@@ -286,6 +274,7 @@ void drawY(uint8_t startx, uint8_t starty, uint8_t length, uint32_t color) {
     + B8(dlsb))
 
 
+
 void drawDistrikt() {
   uint16_t x;
   uint16_t row;
@@ -306,51 +295,51 @@ void drawDistrikt() {
     B16(00,00000000),
     B16(00,00000000),
     B16(00,00000000),
-    B16(00,00000000),
-    B16(00,11000000),
-    B16(00,11111100),
-    B16(00,11111100),
-    B16(00,11000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,11001100),
-    B16(00,00110000),
-    B16(00,11111100),
-    B16(00,11111100),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,11111100),
-    B16(00,11111100),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,01101100),
-    B16(00,11010000),
-    B16(00,11010000),
-    B16(00,11111100),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,11000000),
-    B16(00,11111100),
-    B16(00,11111100),
-    B16(00,11000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,01011000),
-    B16(00,11011000),
-    B16(00,11101100),
-    B16(00,01101100),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,11111100),
-    B16(00,11111100),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,01111000),
-    B16(00,10000100),
-    B16(00,11111100),
-    B16(00,11111100),
-    B16(00,00000000),
-    B16(00,00000000),
+    B16(11,11111111),
+    B16(10,00000001),
+    B16(10,00000001),
+    B16(10,11000001),
+    B16(10,11111101),
+    B16(10,11111101),
+    B16(10,11000001),
+    B16(10,00000001),
+    B16(10,00000001),
+    B16(10,11001101),
+    B16(10,00110001),
+    B16(10,11111101),
+    B16(10,00000001),
+    B16(10,00000001),
+    B16(10,11111101),
+    B16(10,00000001),
+    B16(10,00000001),
+    B16(10,01101101),
+    B16(10,11010001),
+    B16(10,11010001),
+    B16(11,11111101),
+    B16(10,00000001),
+    B16(10,00000001),
+    B16(10,11000001),
+    B16(10,11111101),
+    B16(10,11111101),
+    B16(10,11000001),
+    B16(10,00000001),
+    B16(10,00000001),
+    B16(10,01011001),
+    B16(10,11011001),
+    B16(10,11101101),
+    B16(10,01101101),
+    B16(10,00000001),
+    B16(10,00000001),
+    B16(10,11111101),
+    B16(10,00000001),
+    B16(10,00000001),
+    B16(10,01111001),
+    B16(10,10000101),
+    B16(10,11111101),
+    B16(10,11111101),
+    B16(10,00000001),
+    B16(10,00000001),
+    B16(11,11111111),
     B16(00,00000000),
     B16(00,00000000),
     B16(00,00000000),
@@ -370,115 +359,6 @@ void drawDistrikt() {
   }
   strip.show();
 }
-
-void drawTheMan(uint32_t color) {
-  uint16_t x;
-  uint16_t row;
-
-  uint16_t the_man[] = {
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(10,00000001),
-    B16(11,00000011),
-    B16(11,00000011),
-    B16(01,10000110),
-    B16(01,10000110),
-    B16(01,10000110),
-    B16(01,10000110),
-    B16(00,11001100),
-    B16(00,11001100),
-    B16(00,11001100),
-    B16(00,11001100),
-    B16(00,11001100),
-    B16(00,11001100),
-    B16(00,01001000),
-    B16(00,01001000),
-    B16(00,01001000),
-    B16(00,01001000),
-    B16(00,01001000),
-    B16(00,01001000),
-    B16(00,11001100),
-    B16(00,11001100),
-    B16(00,11001100),
-    B16(00,11001100),
-    B16(00,11001100),
-    B16(00,10000100),
-    B16(01,10000110),
-    B16(01,10000110),
-    B16(01,10110110),
-    B16(11,00110011),
-    B16(11,01111011),
-    B16(10,01111001),
-    B16(00,00110000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000)};
-
-  clearScreen();
-  for (row = 0; row < sizeof(the_man) / sizeof(uint16_t); row++) {
-    for (x = 0; x < 10; x++) {
-      strip.setPixelColor(x,  row, the_man[row] & (1<<(x))? color: rgbTo24BitColor(0, 0, 0));
-    }
-  }
-  strip.show();
-}
-
-void cycleTheMan(){
-  uint32_t color;
-  uint8_t the_red;
-  uint8_t the_green;
-  uint8_t the_blue;
-  uint8_t the_cycle;
-  the_red = 100;
-  the_green = 100;
-  the_blue = 100;
-  wheel_color = 255;
-  for (the_cycle = 0; the_cycle < 100; the_cycle++) {
-        the_red = random(2,4)%2 == 0 ? rgbTo24BitColor(80, 80, 80): wheel(wheel_color); //Chance of 1/3rd 
-        the_green = random(2,4)%2 == 0 ? rgbTo24BitColor(80, 80, 80): wheel(wheel_color); //Chance of 1/3rd  
-        the_blue = random(2,4)%2 == 0 ? rgbTo24BitColor(80, 80, 80): wheel(wheel_color); //Chance of 1/3rd 
-        drawTheMan(rgbTo24BitColor(the_red, the_green, the_blue));
-        delay(20);
-  }
-}
-
 
 
 // US flag 
@@ -609,17 +489,6 @@ void drawHeader() {
     wheel_color++;
   }
   strip.show();
-}
-
-void drawCenter() {
-  uint32_t color;
-  uint16_t x;
-
-    color = random(2,4)%2 == 0 ? rgbTo24BitColor(0, 0, 0): wheel(wheel_color); //Chance of 1/3rd 
-//    color = rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX);
-    strip.fillCircle(35, 5, 1, color);
-    wheel_color++;
-    strip.show();
 }
 
 
@@ -895,13 +764,7 @@ void setup() {
   strip.print(names[boardId], 15, 1, 1);
   strip.show();
   delay(5000);
-
-  //test zone
-//  clearScreen();
-//  strip.fillCircle(35, 5, 3, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
-  //strip.circles(15, 5, 5);
-//  strip.show();
-//  delay(5000);
+  
   
 //  for (i = 0; i < 500; i++) {
 //    rainbowCycle(1);
@@ -940,7 +803,7 @@ void loop() {
   if (ledsOn) {
 
 
-    if (loopcnt > 1000) {
+    if (loopcnt > 5000) {
       loopcnt = 0;
       state++;
     }
@@ -948,44 +811,25 @@ void loop() {
 
     if (state == 0) {
       drawDistrikt();
-      delay(5000);
+      delay(2000);
       state = 1;    
     }
-//    if (state == 0) {
-//      drawCenter();
-//      shiftMatrixCircles();
-//    }  
 
     if (state == 1) {
       drawHeader();
       shiftMatrixLines();
     }  
 
-//    if (state == 2) {
-//      drawUSflag();
-//      loopcnt += 50;
-//    }
-
     if (state == 2) {
-        for (row = 0; row < 10; row++) {
-    strip.setPixelColor(row, 69, 0);
-  }
-  strip.show();
-    for (row = 0; row < 70; row++) {
-      shiftMatrixLines();
-       strip.show();
-    }
- 
-      cycleTheMan();
-      state = 3;    
-
+      drawUSflag();
+      loopcnt += 50;
     }
 
     if (state == 3) {
       loopcnt = 0;
       state = 0;
       drawBattery();
-      delay(1000);
+      delay(2000);
       clearScreen();
     }
 
