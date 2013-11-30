@@ -1294,7 +1294,7 @@ void loop() {
   if (ledsOn) {
 
 
-    if (loopcnt > 300) {
+    if (loopcnt > 3000) {
       loopcnt = 0;
       state++;
     }
@@ -1318,7 +1318,7 @@ void loop() {
         drawStanford();
         strip.show();
         delay(300);
-        fillScreen(rgbTo24BitColor(140, 21, 21));
+        fillScreen(rgbTo24BitColor(14, 2, 2u));
         strip.show();
         delay(300);
       }
