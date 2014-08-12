@@ -2,10 +2,7 @@
 #include <Adafruit_GFX.h>
 #include "Board_WS2801.h"
 #include "Print.h"
-//#include <MozziGuts.h>
-//#include <Oscil.h>
-//#include <tables/cos8192_int8.h> // table for Oscils to play
-//#include <mozzi_midi.h> // for mtof
+
 
 /*****************************************************************************
   Burner Board LED and Audio Code
@@ -44,48 +41,17 @@
 //  - 5, joon - 0,1,0,1 - 23, 25
 //  - 6, steve x - 0,1,1,0 - 23, 24
   
-//#define AUDIO 1
-
-// Audio Stuff
-#ifdef AUDIO
-#define CONTROL_RATE 64 // powers of 2 please
-
-Oscil<COS8192_NUM_CELLS, AUDIO_RATE> aCos(COS8192_DATA);
-Oscil<COS8192_NUM_CELLS, AUDIO_RATE> aVibrato(COS8192_DATA);
-
-#endif
 
 uint16_t boardId = 0;
 
 const long intensity = 300;
-#define AUDIO_MODE STANDARD
-// End Audio Stuff
 
-/*
-   ISR(TIMER5_OVF_vect)        // interrupt service routine that wraps a user defined function supplied by attachInterrupt
-   {
-   TCNT5 = 34286;            // preload timer
-   Serial.println("Int");
-   }
- */
 
 bool ledsOn = false;
 
 
-// Burner board is not using this: we are using Hardware SPI for performance
-// Choose which 2 pins you will use for output.
-// Can be any valid output pins.
-// The colors of the wires may be totally different so
-// BE SURE TO CHECK YOUR PIXELS TO SEE WHICH WIRES TO USE!
-uint8_t dataPin  = 2;    // Yellow wire on Adafruit Pixels
-uint8_t clockPin = 3;    // Green wire on Adafruit Pixels
-
-// Don't forget to connect the ground wire to Arduino ground,
-// and the +5V wire to a +5V supply
-
 // Set the first variable to the NUMBER of pixels in a row and
 // the second value to number of pixels in a column.
-//Board_WS2801 strip = Board_WS2801((uint16_t)10, (uint16_t)70, dataPin, clockPin);
 Board_WS2801 strip = Board_WS2801((uint16_t)10, (uint16_t)70, WS2801_RGB);
 
 uint8_t led[8];
@@ -140,6 +106,13 @@ char *names[] = {
   
   
 /* Helper functions */
+
+// Set sidelight left/right 
+void setSideLight(uint16_t lr, uint16_t x,  uint32_t color)
+{
+        uint16_t pixel = lr * 79 + x;
+        strip.setPixelColor(700 + pixel, color);
+}
 
 // Create a 24 bit color value from R,G,B
 uint32_t rgbTo24BitColor(byte r, byte g, byte b)
@@ -199,6 +172,12 @@ void shiftMatrixLines()
       strip.setPixelColor(x, y, strip.getPixelColor(x, y + 1));
     }
   }
+  // Hardcoded 158 side LEDS for now
+  for(y = 0; y < 78; y++)
+  {
+      strip.setPixelColor(700 + y, strip.getPixelColor(700 + y + 1));
+      strip.setPixelColor(700 + 79 + y, strip.getPixelColor(700 + 79 + y + 1));
+  }
   delay(50);
 }
 
@@ -226,6 +205,13 @@ void clearScreen()
       strip.setPixelColor(x, y, rgbTo24BitColor(0, 0, 0));         
     }
   }
+  // Hardcoded 158 side LEDS for now
+  for(y = 0; y < 79; y++)
+  {
+      strip.setPixelColor(700 + y, rgbTo24BitColor(0, 0, 0));
+      strip.setPixelColor(700 + 79 + y, rgbTo24BitColor(0, 0, 0));
+  }
+
 }
 
 // Clear Screen
@@ -268,7 +254,6 @@ void drawzagX(uint8_t w, uint8_t h, uint8_t wait) {
     strip.show();
     delay(wait);
   }
-
 }
 
 void drawY(uint8_t startx, uint8_t starty, uint8_t length, uint32_t color) {
@@ -960,9 +945,62 @@ void drawHeader() {
     //   color = random(2,4)%2 == 0 ? rgbTo24BitColor(0, 0, 0): rgbTo24BitColor(255, 255, 255); //Chance of 1/3rd 
     //   color =  rgbTo24BitColor(255, 255, 255); //Chance of 1/3rd 
     strip.setPixelColor(x, 69, color);
+    // Ripple down the side lights with the same color as the edges
+    if (x == 0) {
+        setSideLight(0, 78, color);
+    }
+    if (x == 9) {
+        setSideLight(1, 78, color);
+    }
     wheel_color++;
   }
   strip.show();
+}
+
+
+/* 
+ *      |
+ *     -#-
+ *      |
+*/
+static int flake_row = 0;
+static int flake_col = 0;
+	
+void drawSnowFlakes() {
+	int x;
+
+// Blue Background
+  for (x = 0; x < 10; x++) {
+		strip.setPixelColor(x, 69, rgbTo24BitColor(0, 0, 20));
+	}
+
+	switch(flake_row) {
+		case 0:
+		flake_col = random() % 8 + 1;
+		strip.setPixelColor(flake_col, 69, rgbTo24BitColor(64, 64, 64));
+		break;
+		
+		case 1:
+		strip.setPixelColor(flake_col - 1, 69, rgbTo24BitColor(64, 64, 64));
+		strip.setPixelColor(flake_col, 69, rgbTo24BitColor(255, 255, 255));
+		strip.setPixelColor(flake_col + 1, 69, rgbTo24BitColor(64, 64, 64));		
+		break;
+		
+		case 2:
+		strip.setPixelColor(flake_col, 69, rgbTo24BitColor(64, 64, 64));
+		break;
+		
+		case 3:
+		break;
+
+    default:
+		break;
+	}
+	
+	flake_row++;
+	if (flake_row > 4) {
+		flake_row = 0;
+	}
 }
 
 void drawCenter() {
@@ -1186,19 +1224,6 @@ void setup() {
   pinMode(ID_3, INPUT);
   digitalWrite(ID_3, HIGH);
   
-  
-  /*
-     TCCR5A = 0;
-     TCCR5B = 0;
-     TCNT5  = 0;
-
-     OCR5A = 31250;            // compare match register 16MHz/256/2Hz
-     TCCR5B |= (1 << WGM12);   // CTC mode
-     TCCR5B |= (1 << CS12);    // 256 prescaler 
-     TIMSK5 |= (1 << OCIE1A);  // enable timer compare interrupt
-   */
-
-
 
   /*
      for (uint16_t i = 0; i < 544; i++) {
@@ -1237,9 +1262,28 @@ void setup() {
 
   invader = 0;
 
+
+  // test zone
+  
+  clearScreen();
+  int x;
+  for (x = 0; x < 858; x++) {
+     strip.setPixelColor(x, rgbTo24BitColor(50,50,50));
+     strip.show();
+    //delay(50);
+  }
+       strip.setPixelColor(700, rgbTo24BitColor(0,0,50));
+       strip.setPixelColor(779, rgbTo24BitColor(0,0,50));
+     strip.show();
+
+  delay(15000);
+  
+  
   // Update LED contents, to start they are all 'off'
   clearScreen();
   strip.show();
+  
+
 
   strip.print(boards[boardId], 15, 1, 1);
   strip.show();
@@ -1250,8 +1294,7 @@ void setup() {
   strip.show();
   delay(5000);
 
-  //test zone
-//  clearScreen();
+
 //  strip.fillCircle(35, 5, 3, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
   //strip.circles(15, 5, 5);
 //  strip.show();
@@ -1266,14 +1309,6 @@ void setup() {
   delay(10000);
 
   clearScreen();
-  
-
-  
-#ifdef AUDIO
-  startMozzi(64);
-  aCos.setFreq(25);
-  aVibrato.setFreq(4);
-#endif
 
 }
 
@@ -1287,10 +1322,7 @@ int16_t state = 0;
 void loop() {
   int i;
 
-#ifdef AUDIO
-  audioHook();
 
-#else
   if (ledsOn) {
 
 
@@ -1312,8 +1344,10 @@ void loop() {
       }
  */
     
-      //      drawDistrikt();
+      drawDistrikt();
+      state = 1;    
 
+/*
       for (i = 0; i < 20; i++) {
         drawStanford();
         strip.show();
@@ -1324,7 +1358,14 @@ void loop() {
       }
 
       state = 1;    
+      drawSnowFlakes();
+      shiftMatrixLines();
+
+*/
     }
+
+
+
 //    if (state == 0) {
 //      drawCenter();
 //      shiftMatrixCircles();
@@ -1341,15 +1382,16 @@ void loop() {
 //      loopcnt += 50;
 //    }
 
-
+/*
     if (state == 2) {
       drawStanfordLogo();
       drawStanfordTree();
       delay(10000);
       state = 3;    
     }
+*/
 
-/*
+
 // The Man
     if (state == 2) {
         for (row = 0; row < 10; row++) {
@@ -1364,7 +1406,7 @@ void loop() {
         cycleTheMan();
         state = 3;    
     }
- */
+ 
 
     if (state == 3) {
       loopcnt = 0;
@@ -1389,44 +1431,10 @@ void loop() {
     clearScreen();
     strip.show();
   }
-#endif
 
   loopcnt++;
-
 }
 
-#ifdef AUDIO
-uint32_t updateTone = 100;
-
-void updateControl() {
-  uint16_t motSpeed;
-  float f1, f2;
-
-
-  if (updateTone > 5) {
-    motSpeed = analogRead(MOT_PIN);
-
-    f1 = motSpeed / 21.0;
-    f1 += 20;
-    f2 = f1 / 4.0;
-
-    //  Serial.print("update ");
-    //  Serial.println(motSpeed);
-    aCos.setFreq(mtof(f1));
-    aVibrato.setFreq(f2);
-    updateTone = 0;
-  }
-
-
-  updateTone++;  
-}
-
-int updateAudio(){
-  long vibrato = intensity * aVibrato.next();
-  return (int)aCos.phMod(vibrato);
-}
-
-#endif
 
 
 
@@ -1442,8 +1450,6 @@ void checkButton() {
   remotePosition = analogRead(REMOTE_PIN);
   //  Serial.print("Remote position ");
   //  Serial.println(remotePosition);
-
-
 
   //  Serial.print("Button position ");
   //  Serial.println(buttonPress);

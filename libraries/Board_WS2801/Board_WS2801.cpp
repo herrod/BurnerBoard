@@ -61,6 +61,9 @@
 // ----**----   
 // 0,0 
 //   Back 
+// In addition to the main array, the edge pixels are prepended to the physical string,
+// and logically appended to array. There are 79 pixels on each side for a total of 158.
+// So, setPixelColor(..., 544 is the start of the side).
 
 #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
 #define MEGA 1
@@ -71,22 +74,24 @@
 extern void screenHook();
 
 
-#define NUM_REAL_BOARD_PIXELS 544
+// Was 544 with just the matrix, now 544 + 158
+#define NUM_EDGE_PIXELS 158
+#define NUM_REAL_BOARD_PIXELS (544 + NUM_EDGE_PIXELS)
 
 // Constructor for use with hardware SPI (specific clock/data pins):
 // Todo: need to update dynamic width/height for future boards
 Board_WS2801::Board_WS2801(uint16_t n, uint8_t order)  : Adafruit_GFX(70, 10) {
   rgb_order = order;
-  alloc(n);
-  translationArray(NUM_REAL_BOARD_PIXELS);
+  alloc(n + NUM_EDGE_PIXELS);
+  translationArray(n + NUM_EDGE_PIXELS);
   updatePins();
 }
 
 // Constructor for use with arbitrary clock/data pins:
 Board_WS2801::Board_WS2801(uint16_t n, uint8_t dpin, uint8_t cpin, uint8_t order) : Adafruit_GFX(70, 10) {
   rgb_order = order;
-  alloc(n);
-  translationArray(NUM_REAL_BOARD_PIXELS);
+  alloc(n + NUM_EDGE_PIXELS);
+  translationArray(n + NUM_EDGE_PIXELS);
   updatePins(dpin, cpin);
 }
 
@@ -98,8 +103,8 @@ Board_WS2801::Board_WS2801(uint16_t n, uint8_t dpin, uint8_t cpin, uint8_t order
 // It starts 10x70 starts at 0,0, on to 69,0, then 69,1 to 0,1, and so on
 Board_WS2801::Board_WS2801(uint16_t w, uint16_t h, uint8_t dpin, uint8_t cpin, uint8_t order) : Adafruit_GFX(70, 10) {
   rgb_order = order;
-  alloc(w * h);
-  translationArray(NUM_REAL_BOARD_PIXELS);
+  alloc(w * h + NUM_EDGE_PIXELS);
+  translationArray(w * h + NUM_EDGE_PIXELS);
   width = w;
   height = h;
   updatePins(dpin, cpin);
@@ -107,8 +112,8 @@ Board_WS2801::Board_WS2801(uint16_t w, uint16_t h, uint8_t dpin, uint8_t cpin, u
 
 Board_WS2801::Board_WS2801(uint16_t w, uint16_t h, uint8_t order)  : Adafruit_GFX(70, 10) {
   rgb_order = order;
-  alloc(w * h);
-  translationArray(NUM_REAL_BOARD_PIXELS);
+  alloc(w * h + NUM_EDGE_PIXELS);
+  translationArray(w * h + NUM_EDGE_PIXELS);
   width = w;
   height = h;
   updatePins();
@@ -257,7 +262,7 @@ void Board_WS2801::updateOrder(uint8_t order) {
 // Clock out the actual Burner Board Pixels without holes
 // 
 void Board_WS2801::show(void) {
-  uint16_t i, nl3 = numboardLEDs * 3; // 3 bytes per LED
+  uint16_t i, nl3 = NUM_REAL_BOARD_PIXELS * 3; // 3 bytes per LED
   uint8_t  bit;
 
   // Write 24 bits per pixel:
@@ -378,9 +383,10 @@ uint32_t Board_WS2801::getPixelColor(uint16_t x, uint16_t y) {
 }
 
 
-
 // Map virtual pixels to physical pixels on the Burner Board Layout
 // Emulate a 70 x 10 rectangle matrix 
+// Optionally add a two 79 pixel (158) strips on the side 
+// as pixels 0-157 before the real board pixels start
 // Strip lengths are 31, 45, 60, 66, 70, 70, 66, 60, 45, 31
 // format is colx: virt pixel offset -> real pixel offset
 // col1: 1-19, 20-50, 51-70: 20-50->1-31
@@ -399,40 +405,63 @@ uint32_t Board_WS2801::BoardPixel(uint32_t pixel) {
   // Pixel is a hole in the map, returns 0
   newpixel = 0;
 
-  // Map linear row x column strip into strip with holes in grid
-  // to cater for pixels that are missing from the corners of the
-  // Burner Board layout
+  // Virt Pixels 701-858 are the edge pixels
+  if (pixel > 700) {
+ 
+    pixel = pixel - 701;
 
-  //1  20-50->1-31
-  if (pixel >= 20 && pixel <=50)
-    newpixel = pixel - 19;
-  //2 83-127->76-32
-  if (pixel >= 83 && pixel <= 127)
-    newpixel = 127 - pixel + 32;
-  //3 146-205->77-136
-  if (pixel >= 146 && pixel <= 205)
-    newpixel = pixel - 146 + 77;
-  //4 213-278->202-137
-  if (pixel >= 213 && pixel <= 278)
-    newpixel = 278 - pixel + 137;
-  //5 281-350->203-272
-  if (pixel >= 281 && pixel <= 350)
-    newpixel = pixel - 281 + 203;
-  //6 351-420->342-273
-  if (pixel >= 351 && pixel <=420)
-    newpixel = 420 - pixel + 273;
-  //7 423-488->343-408
-  if (pixel >= 423 && pixel <= 488)
-    newpixel = pixel - 423 + 343;
-  //8 496-555->468-409
-  if (pixel >= 496 && pixel <= 555)
-    newpixel = 555 - pixel + 409;
-  //9 573-617->469-513
-  if (pixel >= 573 && pixel <= 617)
-    newpixel = pixel - 573 + 469;
-  //10 650-680->544-514
-  if (pixel >= 650 && pixel <= 680)
-    newpixel = 680 - pixel + 514;
+    // 1st strip of edge 
+    if (pixel < (NUM_EDGE_PIXELS / 2)) {
+      newpixel = pixel;
+    }
+
+    // 2nd strip of edge - reverse order
+    if (pixel >= (NUM_EDGE_PIXELS / 2)) {
+      newpixel = NUM_EDGE_PIXELS - 1 - (pixel - (NUM_EDGE_PIXELS / 2));
+    }
+
+    // we calc +1
+    newpixel++;
+
+  } else {
+
+      // Map linear row x column strip into strip with holes in grid
+      // to cater for pixels that are missing from the corners of the
+      // Burner Board layout
+    
+      //1  20-50->1-31
+      if (pixel >= 20 && pixel <=50)
+        newpixel = pixel - 19;
+      //2 83-127->76-32
+      if (pixel >= 83 && pixel <= 127)
+        newpixel = 127 - pixel + 32;
+      //3 146-205->77-136
+      if (pixel >= 146 && pixel <= 205)
+        newpixel = pixel - 146 + 77;
+      //4 213-278->202-137
+      if (pixel >= 213 && pixel <= 278)
+        newpixel = 278 - pixel + 137;
+      //5 281-350->203-272
+      if (pixel >= 281 && pixel <= 350)
+        newpixel = pixel - 281 + 203;
+      //6 351-420->342-273
+      if (pixel >= 351 && pixel <=420)
+        newpixel = 420 - pixel + 273;
+      //7 423-488->343-408
+      if (pixel >= 423 && pixel <= 488)
+        newpixel = pixel - 423 + 343;
+      //8 496-555->468-409
+      if (pixel >= 496 && pixel <= 555)
+        newpixel = 555 - pixel + 409;
+      //9 573-617->469-513
+      if (pixel >= 573 && pixel <= 617)
+        newpixel = pixel - 573 + 469;
+      //10 650-680->544-514
+      if (pixel >= 650 && pixel <= 680)
+        newpixel = 680 - pixel + 514;
+
+      newpixel += NUM_EDGE_PIXELS;
+  }
 
   return newpixel;
 }  
@@ -481,19 +510,5 @@ void Board_WS2801::print(char *string, uint8_t x, uint8_t y, uint8_t size) {
 //		  setRotation(1);
 		  setCursor(x, y);
 		  Adafruit_GFX::print(string);	
-}
-
-void Board_WS2801::fillCircle(uint8_t x, uint8_t y, uint8_t size, uint16_t color) {
-      Adafruit_GFX::fillCircle(x,y,size,color);
-}
-
-//TBD chat to RMC on x y swap
-void Board_WS2801::drawCircle(uint8_t x, uint8_t y, uint8_t size, uint16_t color) {
-      Adafruit_GFX::drawCircle(x,y,size,color);
-}
-
-void Board_WS2801::drawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
-      int16_t x2, int16_t y2, uint16_t color) {
-      Adafruit_GFX::drawTriangle(x0, y0, x1, y1, x2, y2, color);
 }
 
