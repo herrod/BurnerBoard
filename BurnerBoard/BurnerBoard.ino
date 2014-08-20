@@ -142,7 +142,7 @@ void mydelay(uint32_t del) {
         enc = 0;
       clearScreen();
       sprintf(mode, "%d", encoder_pos);
-      strip->print(mode, 15, 1, 1);
+      strip->print(mode, 35, 1, 1);
       strip->show();
       delay(500);
       clearScreen();
@@ -1112,6 +1112,18 @@ void drawPixelDust2() {
   pd_y = y;
 }
 
+void drawStatic() {
+  uint32_t color;
+  uint16_t x, y;
+
+  x = random(10);
+  y = random(70);
+  color = rgbTo24BitColor(200, 200, 200);
+  strip->setPixelColor(x, y, color);
+  pd_x = x;
+  pd_y = y;
+}
+
 
 /* 
  *      |
@@ -1395,7 +1407,7 @@ void setup() {
 
   boardId = readID();
   
-  if (boardId == 0) {
+  if (boardId == 0 || boardId == 2) {
     strip = new Board_WS2801((uint16_t)10, (uint16_t)70, WS2801_RGB, (boolean)true);
   } else {
     strip = new Board_WS2801((uint16_t)10, (uint16_t)70, WS2801_RGB, (boolean)false);
@@ -1569,6 +1581,45 @@ void loop_pixeldust2() {
 
 }
 
+void loop_static() {
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  drawStatic();
+  fadeBoard();
+  strip->show();
+  mydelay(1);
+
+}
+
+
 void loop_rainbow() {
   rainbowCycle2();
   mydelay(5);
@@ -1633,7 +1684,8 @@ void loop() {
        break;
 
      case 9:
-       encoder_pos = 8;     
+       loop_static();
+       encoder_pos = 9;     
        
      default:
        mydelay(1);
