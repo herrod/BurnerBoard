@@ -77,19 +77,21 @@ extern void screenHook();
 // Was 544 with just the matrix, now 544 + 158
 #define NUM_EDGE_PIXELS 158
 #define NUM_REAL_BOARD_PIXELS (544 + NUM_EDGE_PIXELS)
-
+/*
 // Constructor for use with hardware SPI (specific clock/data pins):
 // Todo: need to update dynamic width/height for future boards
-Board_WS2801::Board_WS2801(uint16_t n, uint8_t order)  : Adafruit_GFX(70, 10) {
+Board_WS2801::Board_WS2801(uint16_t n, uint8_t order, boolean sl)  : Adafruit_GFX(70, 10) {
   rgb_order = order;
+  hasSidelights = sl;
   alloc(n + NUM_EDGE_PIXELS);
   translationArray(n + NUM_EDGE_PIXELS);
   updatePins();
 }
 
 // Constructor for use with arbitrary clock/data pins:
-Board_WS2801::Board_WS2801(uint16_t n, uint8_t dpin, uint8_t cpin, uint8_t order) : Adafruit_GFX(70, 10) {
+Board_WS2801::Board_WS2801(uint16_t n, uint8_t dpin, uint8_t cpin, uint8_t order, boolean sl) : Adafruit_GFX(70, 10) {
   rgb_order = order;
+  hasSidelights = sl;
   alloc(n + NUM_EDGE_PIXELS);
   translationArray(n + NUM_EDGE_PIXELS);
   updatePins(dpin, cpin);
@@ -101,8 +103,9 @@ Board_WS2801::Board_WS2801(uint16_t n, uint8_t dpin, uint8_t cpin, uint8_t order
 // other function calls with provide access to pixels via an x,y coordinate system
 // Board is x,y swapped to original Adafruit matrix.
 // It starts 10x70 starts at 0,0, on to 69,0, then 69,1 to 0,1, and so on
-Board_WS2801::Board_WS2801(uint16_t w, uint16_t h, uint8_t dpin, uint8_t cpin, uint8_t order) : Adafruit_GFX(70, 10) {
+Board_WS2801::Board_WS2801(uint16_t w, uint16_t h, uint8_t dpin, uint8_t cpin, uint8_t order, boolean sl) : Adafruit_GFX(70, 10) {
   rgb_order = order;
+  hasSidelights = sl;
   alloc(w * h + NUM_EDGE_PIXELS);
   translationArray(w * h + NUM_EDGE_PIXELS);
   width = w;
@@ -110,8 +113,11 @@ Board_WS2801::Board_WS2801(uint16_t w, uint16_t h, uint8_t dpin, uint8_t cpin, u
   updatePins(dpin, cpin);
 }
 
-Board_WS2801::Board_WS2801(uint16_t w, uint16_t h, uint8_t order)  : Adafruit_GFX(70, 10) {
+*/
+
+Board_WS2801::Board_WS2801(uint16_t w, uint16_t h, uint8_t order, boolean sl)  : Adafruit_GFX(70, 10) {
   rgb_order = order;
+  hasSidelights = sl;
   alloc(w * h + NUM_EDGE_PIXELS);
   translationArray(w * h + NUM_EDGE_PIXELS);
   width = w;
@@ -159,7 +165,7 @@ void Board_WS2801::translationArray(uint16_t n) {
   // For each virt board pixel translate to real board matrix positions
   for(virtpixel = 0; virtpixel < numvirtLEDs; virtpixel ++) {
     // Array Pixel starts at 0,0 and translation map calc'ed with start of 1,1
-    newpixel = BoardPixel(virtpixel + 1);
+    newpixel = this->BoardPixel(virtpixel + 1);
     if (newpixel) {
       // Array Pixel starts at 0,0 and translation map calc'ed with start of 1,1
       newpixel--;
@@ -169,7 +175,6 @@ void Board_WS2801::translationArray(uint16_t n) {
     }
   }
 }
-
 
 
 // Release memory (as needed):
@@ -269,7 +274,8 @@ void Board_WS2801::show(void) {
   if(hardwareSPI) {
   //noInterrupts();
   //startSPI();
-    for(i=0; i<nl3; i++) {
+//    for(i = hasSidelights ? 0 : NUM_EDGE_PIXELS * 3; i<nl3; i++) {
+    for(i = 0; i < nl3; i++) {
 	SPI.transfer(pixels[pixel_translate[i]]);
 //      SPDR = pixels[pixel_translate[i]];
 //      while(!(SPSR & (1<<SPIF)));
@@ -406,7 +412,7 @@ uint32_t Board_WS2801::BoardPixel(uint32_t pixel) {
   newpixel = 0;
 
   // Virt Pixels 701-858 are the edge pixels
-  if (pixel > 700) {
+  if ((hasSidelights == true) && (pixel > 700)) {
  
     pixel = pixel - 701;
 
@@ -460,7 +466,9 @@ uint32_t Board_WS2801::BoardPixel(uint32_t pixel) {
       if (pixel >= 650 && pixel <= 680)
         newpixel = 680 - pixel + 514;
 
-      newpixel += NUM_EDGE_PIXELS;
+      if (hasSidelights == true) {
+	newpixel += NUM_EDGE_PIXELS;
+      }
   }
 
   return newpixel;
@@ -511,4 +519,5 @@ void Board_WS2801::print(char *string, uint8_t x, uint8_t y, uint8_t size) {
 		  setCursor(x, y);
 		  Adafruit_GFX::print(string);	
 }
+
 

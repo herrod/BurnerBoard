@@ -14,19 +14,21 @@
 // unspecified is RGB).  As long as setPixelColor/getPixelColor are
 // used, other code can always treat 'packed' colors as RGB; the
 // library will handle any required translation internally.
-#define WS2801_RGB 0
-#define WS2801_GRB 1
+#define WS2801_RGB (uint8_t)0
+#define WS2801_GRB (uint8_t)1
 
 class Board_WS2801 : public Adafruit_GFX {
 
   public:
 
     // Configurable pins:
-    Board_WS2801(uint16_t n, uint8_t dpin, uint8_t cpin, uint8_t order=WS2801_RGB);
-    Board_WS2801(uint16_t x, uint16_t y, uint8_t dpin, uint8_t cpin, uint8_t order=WS2801_RGB);
-    Board_WS2801(uint16_t x, uint16_t y, uint8_t order=WS2801_RGB);
+/*
+    Board_WS2801(uint16_t n, uint8_t dpin, uint8_t cpin, uint8_t order=WS2801_RGB, boolean sl = false);
+    Board_WS2801(uint16_t x, uint16_t y, uint8_t dpin, uint8_t cpin, uint8_t order=WS2801_RGB, boolean sl = false);
     // Use SPI hardware; specific pins only:
-    Board_WS2801(uint16_t n, uint8_t order=WS2801_RGB);
+    Board_WS2801(uint16_t n, uint8_t order=WS2801_RGB, boolean sl = false);
+*/
+    Board_WS2801(uint16_t x, uint16_t y, uint8_t order=WS2801_RGB, boolean sl = false);
     // Empty constructor; init pins/strand length/data order later:
     Board_WS2801();
     // Release memory (as needed):
@@ -48,6 +50,7 @@ class Board_WS2801 : public Adafruit_GFX {
       updatePins(void), // Change pins, hardware SPI
       updateLength(uint16_t n), // Change strand length
       updateOrder(uint8_t order), // Change data order
+      enableSidelights(boolean haslights), // Has side lights
       print(char *string, uint8_t x, uint8_t y, uint8_t size);
 
 
@@ -72,13 +75,15 @@ class Board_WS2801 : public Adafruit_GFX {
       clkpinmask, datapinmask; // Clock & data PORT bitmasks
     volatile uint8_t
       *clkport  , *dataport;   // Clock & data PORT registers
+    boolean
+      hardwareSPI, // If 'true', using hardware SPI
+      begun;       // If 'true', begin() method was previously invoked
+    boolean
+      hasSidelights;       // If 'true', extra lights on side
     void
       alloc(uint16_t n),
       translationArray(uint16_t n),
       startSPI(void);
-    boolean
-      hardwareSPI, // If 'true', using hardware SPI
-      begun;       // If 'true', begin() method was previously invoked
     uint32_t
       BoardPixel(uint32_t pixel);
 };

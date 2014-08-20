@@ -26,7 +26,6 @@
 #endif
 
 
-
 // PINS
 // - SPI: 50 (MISO), 51 (MOSI), 52 (SCK), 53 (SS)
 //- PWM: 2 to 13 and 44 to 46
@@ -52,7 +51,7 @@ bool ledsOn = false;
 
 // Set the first variable to the NUMBER of pixels in a row and
 // the second value to number of pixels in a column.
-Board_WS2801 strip = Board_WS2801((uint16_t)10, (uint16_t)70, WS2801_RGB);
+Board_WS2801 *strip;
 
 uint8_t led[8];
 uint8_t ledo[8];
@@ -68,6 +67,11 @@ uint8_t ledn[8];
 #define LRELAY_PIN 36
 #define SRELAY_PIN 42
 
+/* Rotary encoder read example */
+#define ENC_A A6
+#define ENC_B A7
+#define ENC_PORT PINF
+ 
 #define ID_0 25
 #define ID_1 24
 #define ID_2 23
@@ -107,11 +111,51 @@ char *names[] = {
   
 /* Helper functions */
 
+
+/* returns change in encoder state (-1,0,1) */
+int8_t read_encoder()
+{
+  static int8_t enc_states[] = {0,-1,1,0,1,0,0,-1,-1,0,0,1,0,1,-1,0};
+  static uint8_t old_AB = 0;
+  /**/
+  old_AB <<= 2;                   //remember previous state
+//  old_AB |= ( ENC_PORT & 0x03 );  //add current state
+  old_AB |= (digitalRead(ENC_B) | (digitalRead(ENC_A) <<1));
+  return ( enc_states[( old_AB & 0x0f )]);
+}
+
+int8_t encoder_pos = 0;
+
+void mydelay(uint32_t del) {
+  int i;
+  int8_t enc;
+  char mode[10];
+  
+  for (i = 0; i < del; i++) {
+    delay(1);
+    enc = read_encoder();
+    if (enc) {
+      Serial.print("Counter value: ");
+      Serial.println(encoder_pos, DEC);
+      encoder_pos += enc;
+      if (enc < 0)
+        enc = 0;
+      clearScreen();
+      sprintf(mode, "%d", encoder_pos);
+      strip->print(mode, 15, 1, 1);
+      strip->show();
+      delay(500);
+      clearScreen();
+    }
+  }
+}
+
+
 // Set sidelight left/right 
 void setSideLight(uint16_t lr, uint16_t x,  uint32_t color)
 {
         uint16_t pixel = lr * 79 + x;
-        strip.setPixelColor(700 + pixel, color);
+        strip->setPixelColor(700 + pixel, color);
 }
 
 // Create a 24 bit color value from R,G,B
@@ -147,18 +191,73 @@ void rainbowCycle(uint8_t wait) {
   int i, j;
   
   for (j=0; j < 256 * 5; j++) {     // 5 cycles of all 25 colors in the wheel
-    for (i=0; i < strip.numPixels(); i++) {
+    for (i=0; i < strip->numPixels(); i++) {
       // tricky math! we use each pixel as a fraction of the full 96-color wheel
-      // (thats the i / strip.numPixels() part)
+      // (thats the i / strip->numPixels() part)
       // Then add in j which makes the colors go around per pixel
       // the % 96 is to make the wheel cycle around
-      strip.setPixelColor(i, wheel( ((i * 256 / strip.numPixels()) + j) % 256) );
+      strip->setPixelColor(i, wheel( ((i * 256 / strip->numPixels()) + j) % 256) );
     }  
-    strip.show();   // write all the pixels out
-    delay(wait);
+    strip->show();   // write all the pixels out
+    mydelay(wait);
   }
 }
 
+// Slightly different, this one makes the rainbow wheel equally distributed 
+// along the chain
+void rainbowCycle2() {
+  int i;
+  uint32_t color;
+  uint8_t r, g, b;
+  
+    for (i=0; i < strip->numPixels(); i++) {
+      strip->setPixelColor(i, wheel(wheel_color));
+      wheel_color += random(255);
+    }  
+    strip->show();   // write all the pixels out  
+}
+
+#define FADER 50
+// Fade the board
+void fadeBoard() {
+  int i;
+  uint32_t color;
+  uint8_t r, g, b;
+  
+    for (i=0; i < strip->numPixels(); i++) {
+      color = strip->getPixelColor(i);
+
+      r = (color & 0x00ff0000) >> 16;
+      g = (color & 0x0000ff00) >> 8;
+      b = (color & 0x000000ff);
+      if (r)
+        r-=FADER;
+      if (b)
+        b-=FADER;
+      if (g)
+        g-=FADER;
+        
+      if (r < FADER)
+        r = 0;
+      if (g < FADER)
+        g = 0;        
+      if (b < FADER)
+        b = 0;        
+        /*
+      Serial.print("color  ");
+      Serial.print(color, HEX);
+      Serial.print("  ");
+      Serial.print(r, HEX);
+      Serial.print("  ");
+      Serial.print(g, HEX);
+      Serial.print("  ");
+      Serial.print(b, HEX);
+      Serial.println("");
+      */
+      strip->setPixelColor(i, r, g, b);
+    }  
+    strip->show();   // write all the pixels out  
+}
 
 //Shift Matrixrow down
 void shiftMatrixLines()
@@ -169,16 +268,15 @@ void shiftMatrixLines()
   {
     for(byte x = 0; x < 10;x++)
     {
-      strip.setPixelColor(x, y, strip.getPixelColor(x, y + 1));
+      strip->setPixelColor(x, y, strip->getPixelColor(x, y + 1));
     }
   }
   // Hardcoded 158 side LEDS for now
   for(y = 0; y < 78; y++)
   {
-      strip.setPixelColor(700 + y, strip.getPixelColor(700 + y + 1));
-      strip.setPixelColor(700 + 79 + y, strip.getPixelColor(700 + 79 + y + 1));
+      strip->setPixelColor(700 + y, strip->getPixelColor(700 + y + 1));
+      strip->setPixelColor(700 + 79 + y, strip->getPixelColor(700 + 79 + y + 1));
   }
-  delay(50);
 }
 
 // I see blondes, brunets, redheads...
@@ -188,9 +286,9 @@ void shiftMatrixCircles()
 
   for(x = 35; x < 69; x++)
   {
-      strip.drawCircle(69 - x, 5, x - 35, strip.getPixelColor(5, x + 1));
+      strip->drawCircle(69 - x, 5, x - 35, strip->getPixelColor(5, x + 1));
   }
-  delay(50);
+  mydelay(50);
 }
 
 // Clear Screen
@@ -202,14 +300,14 @@ void clearScreen()
   {
     for(byte x = 0; x < 10;x++)
     {
-      strip.setPixelColor(x, y, rgbTo24BitColor(0, 0, 0));         
+      strip->setPixelColor(x, y, rgbTo24BitColor(0, 0, 0));         
     }
   }
   // Hardcoded 158 side LEDS for now
   for(y = 0; y < 79; y++)
   {
-      strip.setPixelColor(700 + y, rgbTo24BitColor(0, 0, 0));
-      strip.setPixelColor(700 + 79 + y, rgbTo24BitColor(0, 0, 0));
+      strip->setPixelColor(700 + y, rgbTo24BitColor(0, 0, 0));
+      strip->setPixelColor(700 + 79 + y, rgbTo24BitColor(0, 0, 0));
   }
 
 }
@@ -223,7 +321,7 @@ void fillScreen(uint32_t color)
   {
     for(byte x = 0; x < 10;x++)
     {
-      strip.setPixelColor(x, y, color);         
+      strip->setPixelColor(x, y, color);         
     }
   }
 }
@@ -234,9 +332,9 @@ void lines(uint8_t wait) {
 
   for (x = 0; x < 10; x++) {
     for(y = 0; y < 70; y++) {
-      strip.setPixelColor(x, y, wheel(j));
-      strip.show();
-      delay(wait);
+      strip->setPixelColor(x, y, wheel(j));
+      strip->show();
+      mydelay(wait);
     }
     j += 50;
   }
@@ -245,14 +343,14 @@ void lines(uint8_t wait) {
 void drawzagX(uint8_t w, uint8_t h, uint8_t wait) {
   uint16_t x, y;
   for (x=0; x<w; x++) {
-    strip.setPixelColor(x, x, 255, 0, 0);
-    strip.show();
-    delay(wait);
+    strip->setPixelColor(x, x, 255, 0, 0);
+    strip->show();
+    mydelay(wait);
   }
   for (y=0; y<h; y++) {
-    strip.setPixelColor(w-1-y, y, 0, 0, 255);
-    strip.show();
-    delay(wait);
+    strip->setPixelColor(w-1-y, y, 0, 0, 255);
+    strip->show();
+    mydelay(wait);
   }
 }
 
@@ -260,7 +358,7 @@ void drawY(uint8_t startx, uint8_t starty, uint8_t length, uint32_t color) {
   uint16_t x, y;
 
   for (y = starty; y < starty + length; y++) {
-    strip.setPixelColor(x, y, color);
+    strip->setPixelColor(x, y, color);
   }
 }
 
@@ -364,12 +462,12 @@ void drawStanfordTree() {
   for (row = 0; row < sizeof(stanfordTree) / sizeof(uint16_t); row++) {
     for (x = 0; x < 10; x++) {
 	if (stanfordTree[69 - row] & (1<<(x))) {
-          strip.setPixelColor(x,  row, rgbTo24BitColor(0, 158, 118));
+          strip->setPixelColor(x,  row, rgbTo24BitColor(0, 158, 118));
         }
     }
 
   }
-  strip.show();
+  strip->show();
 }
 
 void drawStanfordLogo() {
@@ -448,13 +546,13 @@ void drawStanfordLogo() {
                 B16(00,00000000),
                 B16(00,00000000)};
 
-//  strip.drawRect(0, 0, 70, 10, rgbTo24BitColor(140, 21, 21));
+//  strip->drawRect(0, 0, 70, 10, rgbTo24BitColor(140, 21, 21));
   for (row = 0; row < sizeof(stanfordLogo) / sizeof(uint16_t); row++) {
     for (x = 0; x < 10; x++) {
-      strip.setPixelColor(9 - x,  row, stanfordLogo[69 - row] & (1<<(x))? rgbTo24BitColor(140, 21, 21): rgbTo24BitColor(255, 255, 255));
+      strip->setPixelColor(9 - x,  row, stanfordLogo[69 - row] & (1<<(x))? rgbTo24BitColor(140, 21, 21): rgbTo24BitColor(255, 255, 255));
     }
   }
-  strip.show();
+  strip->show();
 }
 
 
@@ -535,13 +633,13 @@ void drawStanford() {
        B16(00,00000000),
        B16(00,00000000)};
 
-//  strip.drawRect(0, 0, 70, 10, rgbTo24BitColor(140, 21, 21));
+//  strip->drawRect(0, 0, 70, 10, rgbTo24BitColor(140, 21, 21));
   for (row = 0; row < sizeof(stanford) / sizeof(uint16_t); row++) {
     for (x = 0; x < 10; x++) {
-      strip.setPixelColor(x,  row, stanford[row] & (1<<(x))? rgbTo24BitColor(64, 64, 64): rgbTo24BitColor(14, 2, 2));
+      strip->setPixelColor(x,  row, stanford[row] & (1<<(x))? rgbTo24BitColor(64, 64, 64): rgbTo24BitColor(14, 2, 2));
     }
   }
-  strip.show();
+  strip->show();
 }
 
 
@@ -624,10 +722,10 @@ void drawDistrikt() {
   clearScreen();
   for (row = 0; row < sizeof(distrikt) / sizeof(uint16_t); row++) {
     for (x = 0; x < 10; x++) {
-      strip.setPixelColor(x,  row, distrikt[row] & (1<<(x))? rgbTo24BitColor(255, 255, 255): rgbTo24BitColor(0, 0, 0));
+      strip->setPixelColor(x,  row, distrikt[row] & (1<<(x))? rgbTo24BitColor(255, 255, 255): rgbTo24BitColor(0, 0, 0));
     }
   }
-  strip.show();
+  strip->show();
 }
 
 void drawVMW() {
@@ -703,10 +801,10 @@ void drawVMW() {
   clearScreen();
   for (row = 0; row < sizeof(vmw) / sizeof(uint16_t); row++) {
     for (x = 0; x < 10; x++) {
-      strip.setPixelColor(x,  row, vmw[row] & (1<<(x))? rgbTo24BitColor(255, 255, 255): rgbTo24BitColor(0, 0, 0));
+      strip->setPixelColor(x,  row, vmw[row] & (1<<(x))? rgbTo24BitColor(255, 255, 255): rgbTo24BitColor(0, 0, 0));
     }
   }
-  strip.show();
+  strip->show();
 }
 
 
@@ -793,10 +891,10 @@ void drawTheMan(uint32_t color) {
   clearScreen();
   for (row = 0; row < sizeof(the_man) / sizeof(uint16_t); row++) {
     for (x = 0; x < 10; x++) {
-      strip.setPixelColor(x,  row, the_man[row] & (1<<(x))? color: rgbTo24BitColor(0, 0, 0));
+      strip->setPixelColor(x,  row, the_man[row] & (1<<(x))? color: rgbTo24BitColor(0, 0, 0));
     }
   }
-  strip.show();
+  strip->show();
 }
 
 void cycleTheMan(){
@@ -814,7 +912,7 @@ void cycleTheMan(){
         the_green = random(2,4)%2 == 0 ? rgbTo24BitColor(80, 80, 80): wheel(wheel_color); //Chance of 1/3rd  
         the_blue = random(2,4)%2 == 0 ? rgbTo24BitColor(80, 80, 80): wheel(wheel_color); //Chance of 1/3rd 
         drawTheMan(rgbTo24BitColor(the_red, the_green, the_blue));
-        delay(20);
+        mydelay(20);
   }
 }
 
@@ -834,85 +932,85 @@ void drawUSflag() {
   for (row = 0; row < 20; row++) {
 
     for (x = 0; x < 10; x++) {
-      strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, 0, 0));
+      strip->setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, 0, 0));
       x++;
-      strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
+      strip->setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
     }
     shiftMatrixLines();
-    strip.show();
+    strip->show();
   }
 
   // Red and White with solid blue
   for (x = 0; x < 4; x++) {
-    strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, 0, 0));
+    strip->setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, 0, 0));
     x++;
-    strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
+    strip->setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
   }
   shiftMatrixLines();
-  strip.show();
+  strip->show();
   row++;
 
 
   // Red/white
   for (x = 0; x < 4; x++) {
-    strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, 0, 0));
+    strip->setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, 0, 0));
     x++;
-    strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
+    strip->setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
   }
   // Solid Blue line
   for (; x < 10; x++) {
-    strip.setPixelColor(x, 69, rgbTo24BitColor(0, 0, RGB_DIM));
+    strip->setPixelColor(x, 69, rgbTo24BitColor(0, 0, RGB_DIM));
   }
   shiftMatrixLines();
-  strip.show();
+  strip->show();
 
   for (row = 0; row < 20; row++) {
     // Red/white
     for (x = 0; x < 4; x++) {
-      strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, 0, 0));
+      strip->setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, 0, 0));
       x++;
-      strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
+      strip->setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
     }
     // White/Blue
     for (x = 4; x < 10; x++) {
-      strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
+      strip->setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
       x++;
-      strip.setPixelColor(x, 69, rgbTo24BitColor(0, 0, RGB_DIM));
+      strip->setPixelColor(x, 69, rgbTo24BitColor(0, 0, RGB_DIM));
     }    
     shiftMatrixLines();
-    strip.show();  
+    strip->show();  
     // Blue/white
     for (x = 4; x < 10; x++) {
-      strip.setPixelColor(x, 69, rgbTo24BitColor(0, 0, RGB_DIM));
+      strip->setPixelColor(x, 69, rgbTo24BitColor(0, 0, RGB_DIM));
       x++;
-      strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
+      strip->setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
     }
     shiftMatrixLines();
-    strip.show();
+    strip->show();
     row++;
 
   }
 
   // Red/white
   for (x = 0; x < 4; x++) {
-    strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, 0, 0));
+    strip->setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, 0, 0));
     x++;
-    strip.setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
+    strip->setPixelColor(x, 69, rgbTo24BitColor(RGB_DIM, RGB_DIM, RGB_DIM));
   }
   // Blue line
   for (; x < 10; x++) {
-    strip.setPixelColor(x, 69, rgbTo24BitColor(0, 0, RGB_DIM));
+    strip->setPixelColor(x, 69, rgbTo24BitColor(0, 0, RGB_DIM));
   }
   shiftMatrixLines();
 
 
   // 10 lines of blank
   for (x = 0; x < 10; x++) {
-    strip.setPixelColor(x, 69, rgbTo24BitColor(0, 0, 0));
+    strip->setPixelColor(x, 69, rgbTo24BitColor(0, 0, 0));
   }
   for (row = 0; row < 10; row++) {
     shiftMatrixLines();
-    strip.show();
+    strip->show();
   }
 
 }
@@ -924,14 +1022,14 @@ void drawInvader(uint8_t invader) {
   for (row = 0; row < 8; row++) {
     for (x = 1; x < 9; x++) {
       if (invader) {
-        strip.setPixelColor(x, 30 + row, ledn[row] & rgbTo24BitColor(0, 0, 0));
-        strip.setPixelColor(x, 30 + row, ledo[row] & (1<<(x - 1))? rgbTo24BitColor(0, 0, 0): rgbTo24BitColor(0, 100, 0));
+        strip->setPixelColor(x, 30 + row, ledn[row] & rgbTo24BitColor(0, 0, 0));
+        strip->setPixelColor(x, 30 + row, ledo[row] & (1<<(x - 1))? rgbTo24BitColor(0, 0, 0): rgbTo24BitColor(0, 100, 0));
       } else {
-        strip.setPixelColor(x, 30 + row, ledo[row] & rgbTo24BitColor(0, 0, 0));
-        strip.setPixelColor(x, 30 + row, ledn[row] & (1<<(x - 1))? rgbTo24BitColor(0, 0, 0): rgbTo24BitColor(0, 100, 0));
+        strip->setPixelColor(x, 30 + row, ledo[row] & rgbTo24BitColor(0, 0, 0));
+        strip->setPixelColor(x, 30 + row, ledn[row] & (1<<(x - 1))? rgbTo24BitColor(0, 0, 0): rgbTo24BitColor(0, 100, 0));
       }
     }
-    strip.show();
+    strip->show();
   }
 }
 
@@ -944,7 +1042,7 @@ void drawHeader() {
     color = random(2,4)%2 == 0 ? rgbTo24BitColor(0, 0, 0): wheel(wheel_color); //Chance of 1/3rd 
     //   color = random(2,4)%2 == 0 ? rgbTo24BitColor(0, 0, 0): rgbTo24BitColor(255, 255, 255); //Chance of 1/3rd 
     //   color =  rgbTo24BitColor(255, 255, 255); //Chance of 1/3rd 
-    strip.setPixelColor(x, 69, color);
+    strip->setPixelColor(x, 69, color);
     // Ripple down the side lights with the same color as the edges
     if (x == 0) {
         setSideLight(0, 78, color);
@@ -954,7 +1052,64 @@ void drawHeader() {
     }
     wheel_color++;
   }
-  strip.show();
+  strip->show();
+}
+
+void drawHeaderLunarian() {
+  uint32_t color;
+  uint16_t x;
+
+  for (x = 0; x < 10; x++) {
+    //   color = random(2,4)%2 == 0 ? rgbTo24BitColor(0,0,0) : rgbTo24BitColor(0, 255, 0); //Chance of 1/3rd 
+    color = random(2,4)%2 == 0 ? rgbTo24BitColor(0, 0, 0): rgbTo24BitColor(128, 128, 128); //Chance of 1/3rd 
+    //   color = random(2,4)%2 == 0 ? rgbTo24BitColor(0, 0, 0): rgbTo24BitColor(255, 255, 255); //Chance of 1/3rd 
+    //   color =  rgbTo24BitColor(255, 255, 255); //Chance of 1/3rd 
+    strip->setPixelColor(x, 69, color);
+    // Ripple down the side lights with the same color as the edges
+    if (x == 0) {
+        setSideLight(0, 78, color);
+    }
+    if (x == 9) {
+        setSideLight(1, 78, color);
+    }
+    wheel_color++;
+  }
+  strip->show();
+}
+
+static int pd_x;
+static int pd_y;
+
+void drawPixelDust() {
+  uint32_t color;
+  uint16_t x, y;
+
+  x = random(9);
+  y = random(69);
+  color = wheel(random(255));
+  strip->setPixelColor(pd_x, pd_y, rgbTo24BitColor(0, 0, 0));
+  strip->setPixelColor(pd_x+1, pd_y, rgbTo24BitColor(0, 0, 0));
+  strip->setPixelColor(pd_x, pd_y+1, rgbTo24BitColor(0, 0, 0));
+  strip->setPixelColor(pd_x+1, pd_y+1, rgbTo24BitColor(0, 0, 0));
+  strip->setPixelColor(x, y, color);
+  strip->setPixelColor(x+1, y, color);
+  strip->setPixelColor(x, y+1, color);
+  strip->setPixelColor(x+1, y+1, color);
+  strip->show();
+  pd_x = x;
+  pd_y = y;
+}
+
+void drawPixelDust2() {
+  uint32_t color;
+  uint16_t x, y;
+
+  x = random(10);
+  y = random(70);
+  color = wheel(random(255));
+  strip->setPixelColor(x, y, color);
+  pd_x = x;
+  pd_y = y;
 }
 
 
@@ -971,23 +1126,23 @@ void drawSnowFlakes() {
 
 // Blue Background
   for (x = 0; x < 10; x++) {
-		strip.setPixelColor(x, 69, rgbTo24BitColor(0, 0, 20));
+		strip->setPixelColor(x, 69, rgbTo24BitColor(0, 0, 20));
 	}
 
 	switch(flake_row) {
 		case 0:
 		flake_col = random() % 8 + 1;
-		strip.setPixelColor(flake_col, 69, rgbTo24BitColor(64, 64, 64));
+		strip->setPixelColor(flake_col, 69, rgbTo24BitColor(64, 64, 64));
 		break;
 		
 		case 1:
-		strip.setPixelColor(flake_col - 1, 69, rgbTo24BitColor(64, 64, 64));
-		strip.setPixelColor(flake_col, 69, rgbTo24BitColor(255, 255, 255));
-		strip.setPixelColor(flake_col + 1, 69, rgbTo24BitColor(64, 64, 64));		
+		strip->setPixelColor(flake_col - 1, 69, rgbTo24BitColor(64, 64, 64));
+		strip->setPixelColor(flake_col, 69, rgbTo24BitColor(255, 255, 255));
+		strip->setPixelColor(flake_col + 1, 69, rgbTo24BitColor(64, 64, 64));		
 		break;
 		
 		case 2:
-		strip.setPixelColor(flake_col, 69, rgbTo24BitColor(64, 64, 64));
+		strip->setPixelColor(flake_col, 69, rgbTo24BitColor(64, 64, 64));
 		break;
 		
 		case 3:
@@ -1009,9 +1164,9 @@ void drawCenter() {
 
     color = random(2,4)%2 == 0 ? rgbTo24BitColor(0, 0, 0): wheel(wheel_color); //Chance of 1/3rd 
 //    color = rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX);
-    strip.fillCircle(35, 5, 1, color);
+    strip->fillCircle(35, 5, 1, color);
     wheel_color++;
-    strip.show();
+    strip->show();
 }
 
 
@@ -1082,8 +1237,8 @@ void drawBattery() {
 
   // Clear screen and measure voltage, since screen load varies it!
   clearScreen();
-  strip.show();
-  delay(1000);
+  strip->show();
+  mydelay(1000);
 
   // Convert to level 0-28
   for (i = 0; i < 100; i++) {
@@ -1123,37 +1278,37 @@ void drawBattery() {
 
   // Battery Bottom
   for (x = 0; x < 10; x++) {
-    strip.setPixelColor(x, row, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
+    strip->setPixelColor(x, row, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
   }
   row++;
 
   // Battery Sides
   for (; row < 49; row++) {
-    strip.setPixelColor(0, row, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
-    strip.setPixelColor(9, row, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
+    strip->setPixelColor(0, row, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
+    strip->setPixelColor(9, row, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
   }
 
   // Battery Top
   for (x = 0; x < 10; x++) {
-    strip.setPixelColor(x, row, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
+    strip->setPixelColor(x, row, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
   }
   row++;
 
   // Battery button
   for (x = 3; x < 7; x++) {
-    strip.setPixelColor(x, row, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
-    strip.setPixelColor(x, row+1, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
+    strip->setPixelColor(x, row, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
+    strip->setPixelColor(x, row+1, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
   }
   row+=2;
 
   // Battery Level
   for (row = 21; row < 21 + level; row++) {
     for (x = 1; x < 9; x++) {
-      strip.setPixelColor(x, row, rgbTo24BitColor(0, RGB_DIM, 0));
+      strip->setPixelColor(x, row, rgbTo24BitColor(0, RGB_DIM, 0));
     }
   }
 
-  strip.show();
+  strip->show();
 }
 
 
@@ -1182,14 +1337,12 @@ void bounce(uint8_t w, uint8_t h, uint8_t wait) {
       y = h-2;
       ydir = - ydir;
     }
-    strip.setPixelColor(x, y, wheel(j));
-    strip.show();
-    delay(wait);
-    strip.setPixelColor(x, y, 0, 0, 0);
+    strip->setPixelColor(x, y, wheel(j));
+    strip->show();
+    mydelay(wait);
+    strip->setPixelColor(x, y, 0, 0, 0);
   }
 }
-
-
 
 
 void setup() {
@@ -1224,18 +1377,29 @@ void setup() {
   pinMode(ID_3, INPUT);
   digitalWrite(ID_3, HIGH);
   
+  // Encoder Pins
+  pinMode(ENC_A, INPUT);
+  digitalWrite(ENC_A, HIGH);
+  pinMode(ENC_B, INPUT);
+  digitalWrite(ENC_B, HIGH);
 
   /*
      for (uint16_t i = 0; i < 544; i++) {
      Serial.print("Strip pixel ");
      Serial.print(i, DEC);
      Serial.print(" = virt pixel ");
-     Serial.print(strip.pixel_translate[i], DEC);
+     Serial.print(strip->pixel_translate[i], DEC);
      Serial.println(" ");
      }
    */
 
   boardId = readID();
+  
+  if (boardId == 0) {
+    strip = new Board_WS2801((uint16_t)10, (uint16_t)70, WS2801_RGB, (boolean)true);
+  } else {
+    strip = new Board_WS2801((uint16_t)10, (uint16_t)70, WS2801_RGB, (boolean)false);
+  }
 
   // Space Invader Character
   // 1st animation for the character
@@ -1258,59 +1422,159 @@ void setup() {
   ledn[6] = B00100100;
   ledn[7] = B00100100;
 
-  strip.begin();
+  strip->begin();
 
   invader = 0;
 
-
   // test zone
-  
+/*
   clearScreen();
   int x;
   for (x = 0; x < 858; x++) {
-     strip.setPixelColor(x, rgbTo24BitColor(50,50,50));
-     strip.show();
-    //delay(50);
+     strip->setPixelColor(x, rgbTo24BitColor(50,50,50));
+     strip->show();
+    mydelay(50);
   }
-       strip.setPixelColor(700, rgbTo24BitColor(0,0,50));
-       strip.setPixelColor(779, rgbTo24BitColor(0,0,50));
-     strip.show();
+       strip->setPixelColor(700, rgbTo24BitColor(0,0,50));
+       strip->setPixelColor(779, rgbTo24BitColor(0,0,50));
+     strip->show();
 
-  delay(15000);
+  mydelay(15000);
+  */
   
   
   // Update LED contents, to start they are all 'off'
   clearScreen();
-  strip.show();
+  strip->show();
   
-
-
-  strip.print(boards[boardId], 15, 1, 1);
-  strip.show();
-  delay(5000);
+  strip->print(boards[boardId], 15, 1, 1);
+  strip->show();
+  mydelay(1000);
 
   clearScreen();
-  strip.print(names[boardId], 15, 1, 1);
-  strip.show();
-  delay(5000);
+  strip->print(names[boardId], 15, 1, 1);
+  strip->show();
+  mydelay(1000);
 
 
-//  strip.fillCircle(35, 5, 3, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
-  //strip.circles(15, 5, 5);
-//  strip.show();
-//  delay(5000);
+//  strip->fillCircle(35, 5, 3, rgbTo24BitColor(RGB_MAX, RGB_MAX, RGB_MAX));
+  //strip->circles(15, 5, 5);
+//  strip->show();
+//  mydelay(5000);
   
 //  for (i = 0; i < 500; i++) {
-//    rainbowCycle(1);
+//    rainbowCycle();
 //  }
 
-
   drawBattery();
-  delay(10000);
+  mydelay(1000);
 
   clearScreen();
 
 }
+
+
+void loop_matrix()
+{
+  drawHeader();
+  shiftMatrixLines();
+  mydelay(50);
+}
+
+void loop_matrixfast()
+{
+  drawHeader();
+  shiftMatrixLines();
+  mydelay(1);
+}
+
+
+void loop_lunarian()
+{
+  drawHeaderLunarian();
+  shiftMatrixLines(); 
+  mydelay(1);
+}
+
+
+void loop_battery()
+{
+  drawBattery();
+  mydelay(1000);
+  clearScreen();
+}
+
+
+void loop_distrikt()
+{
+  drawDistrikt();
+  mydelay(10);
+}
+
+void loop_stanford(uint8_t enc)
+{
+  int i;
+  
+      for (i = 0; i < 20  && encoder_pos == enc; i++) {
+        drawStanford();
+        strip->show();
+        mydelay(300);
+        fillScreen(rgbTo24BitColor(14, 2, 2u));
+        strip->show();
+        mydelay(300);
+      }
+}
+  
+void loop_pixeldust() {
+  drawPixelDust();
+  mydelay(5);
+
+}
+
+void loop_pixeldust2() {
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  drawPixelDust2();
+  fadeBoard();
+  strip->show();
+  mydelay(1);
+
+}
+
+void loop_rainbow() {
+  rainbowCycle2();
+  mydelay(5);
+}
+
+
 
 int16_t loopcnt = 0;
 
@@ -1321,118 +1585,61 @@ int16_t state = 0;
 
 void loop() {
   int i;
+  
 
-
-  if (ledsOn) {
-
-
-    if (loopcnt > 3000) {
-      loopcnt = 0;
-      state++;
-    }
-
-
-    if (state == 0) {
- /*
-      for (i = 0; i < 5; i++) {
-        drawVMW();
-        strip.show();
-        delay(2000);
-        clearScreen();
-        strip.show();
-        delay(2000);
-      }
- */
-    
-      drawDistrikt();
-      state = 1;    
-
-/*
-      for (i = 0; i < 20; i++) {
-        drawStanford();
-        strip.show();
-        delay(300);
-        fillScreen(rgbTo24BitColor(14, 2, 2u));
-        strip.show();
-        delay(300);
-      }
-
-      state = 1;    
-      drawSnowFlakes();
-      shiftMatrixLines();
-
-*/
-    }
-
-
-
-//    if (state == 0) {
-//      drawCenter();
-//      shiftMatrixCircles();
-//    }  
-
-    if (state == 1) {
-//      state = 2;
-      drawHeader();
-      shiftMatrixLines();
-    }  
-
-//    if (state == 2) {
-//      drawUSflag();
-//      loopcnt += 50;
-//    }
-
-/*
-    if (state == 2) {
-      drawStanfordLogo();
-      drawStanfordTree();
-      delay(10000);
-      state = 3;    
-    }
-*/
-
-
-// The Man
-    if (state == 2) {
-        for (row = 0; row < 10; row++) {
-          strip.setPixelColor(row, 69, 0);
-        }
-        strip.show();
-        for (row = 0; row < 70; row++) {
-          shiftMatrixLines();
-          strip.show();
-        }
+   
+   /*
+   Serial.print("Encoder sample ");
+   Serial.print(encoder_pos, DEC);
+   Serial.println(" ");
+   */
+   
+   switch (encoder_pos) {
+     
+     case 0:
+       loop_matrix();
+       break;
  
-        cycleTheMan();
-        state = 3;    
-    }
- 
+      case 1:
+       loop_matrixfast();
+       break;
+       
+     case 2:
+       loop_lunarian();
+       break;
+       
+     case 3:
+       loop_distrikt();
+       break;
+       
+     case 4:
+       loop_pixeldust();
+       break;
+       
+     case 5:
+       loop_pixeldust2();
+       break;
+       
+     case 6:
+       loop_rainbow();
+       break;
 
-    if (state == 3) {
-      loopcnt = 0;
-      state = 0;
-//      drawBattery();
-//      delay(1000);
-      clearScreen();
-    }
+     case 7:
+       loop_stanford(7);
+       break;
+       
+     case 8:
+       loop_battery();
+       break;
 
+     case 9:
+       encoder_pos = 8;     
+       
+     default:
+       mydelay(1);
+       break;
+   }  
 
-    /*
-       drawInvader(invader);
-       delay(500);
-
-       if (invader == 0) {
-       invader = 1;
-       } else {
-       invader = 0;
-       }
-     */
-  } else {
-    clearScreen();
-    strip.show();
-  }
-
-  loopcnt++;
 }
 
 
@@ -1493,4 +1700,126 @@ void screenHook() {
   checkButton();
 }
 
+
+#ifdef CRAP
+
+
+   if (encoder_pos == 2) {
+      drawUSflag();
+      loopcnt += 50;
+   }
+
+#ifdef FOO
+
+   if (ledsOn) {
+
+    if (loopcnt > 3000) {
+      loopcnt = 0;
+      state++;
+    }
+
+    if (encoder_pos == 1) {
+ /*
+      for (i = 0; i < 5; i++) {
+        drawVMW();
+        strip->show();
+        mydelay(2000);
+        clearScreen();
+        strip->show();
+        mydelay(2000);
+      }
+ */
+    
+      drawDistrikt();
+      state = 1;    
+
+/*
+      for (i = 0; i < 20; i++) {
+        drawStanford();
+        strip->show();
+        mydelay(300);
+        fillScreen(rgbTo24BitColor(14, 2, 2u));
+        strip->show();
+        mydelay(300);
+      }
+
+      state = 1;    
+      drawSnowFlakes();
+      shiftMatrixLines();
+
+*/
+    }
+
+
+
+//    if (state == 0) {
+//      drawCenter();
+//      shiftMatrixCircles();
+//    }  
+
+    if (encoder_pos == 0) {
+//      state = 2;
+      drawHeader();
+      shiftMatrixLines();
+    }  
+
+    if (encoder_pos == 2) {
+      drawUSflag();
+      loopcnt += 50;
+    }
+
+
+    if (encoder_pos == 3) {
+      drawStanfordLogo();
+      drawStanfordTree();
+      mydelay(10000);
+      state = 3;    
+    }
+
+
+
+// The Man
+    if (encoder_pos == 4) {
+        for (row = 0; row < 10; row++) {
+          strip->setPixelColor(row, 69, 0);
+        }
+        strip->show();
+        for (row = 0; row < 70; row++) {
+          shiftMatrixLines();
+          strip->show();
+        }
+ 
+        cycleTheMan();
+        state = 3;    
+    }
+ 
+
+    if (encoder_pos == 5) {
+      loopcnt = 0;
+      state = 0;
+      drawBattery();
+      mydelay(1000);
+      clearScreen();
+    }
+
+
+    /*
+       drawInvader(invader);
+       mydelay(500);
+
+       if (invader == 0) {
+       invader = 1;
+       } else {
+       invader = 0;
+       }
+     */
+  } else {
+    clearScreen();
+    strip->show();
+  }
+
+  loopcnt++;
+  
+#endif
+#endif
 
