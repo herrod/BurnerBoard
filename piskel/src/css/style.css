@@ -1,0 +1,48 @@
+body {
+  background: #1D1D1D;
+}
+
+/* Browser fixes */
+::-ms-clear {
+  display: none;
+}
+
+.allow-user-select {
+  -webkit-touch-callout: initial;
+  -webkit-user-select: initial;
+  -khtml-user-select: initial;
+  -moz-user-select: initial;
+  -ms-user-select: initial;
+  user-select: initial;
+}
+
+.no-overflow {
+  overflow : hidden;
+}
+
+.image-link {
+  color : gold;
+}
+
+.pull-top,
+.pull-right,
+.pull-bottom,
+.pull-left {
+  position:absolute;
+}
+
+.pull-top {
+  top:0;
+}
+
+.pull-right {
+  right:0;
+}
+
+.pull-bottom {
+  bottom:0;
+}
+
+.pull-left {
+  left:0;
+}
