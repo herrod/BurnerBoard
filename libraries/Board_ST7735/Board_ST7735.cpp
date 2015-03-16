@@ -5,7 +5,10 @@
 #include "Print.h"
 
 
-#define NUM_REAL_BOARD_PIXELS 544
+// Was 544 with just the matrix, now 544 + 158
+#define NUM_EDGE_PIXELS 158
+#define NUM_REAL_BOARD_PIXELS (544 + NUM_EDGE_PIXELS)
+
 
 #define sclk 13
 #define mosi 11
@@ -20,8 +23,8 @@ Adafruit_ST7735 tft = Adafruit_ST7735(cs, dc, rst);
 Board_ST7735::Board_ST7735(uint16_t w, uint16_t h, uint8_t order) : Adafruit_GFX(ST7735_TFTWIDTH, ST7735_TFTHEIGHT){
 
   rgb_order = order;
-  alloc(w * h);
-  translationArray(NUM_REAL_BOARD_PIXELS);
+  alloc(w * h  + NUM_EDGE_PIXELS);
+  translationArray(w * h +  NUM_EDGE_PIXELS);
   width = w;
   height = h;
 
@@ -110,8 +113,12 @@ void Board_ST7735::show(void) {
 	uint8_t r, g, b;
 
   for (x = 0; x < width; x++) {
-    for(y=0 ; y<height; y++) {
-			pixel = &pixels[3 * (x * height + y)];
+    for(y=0 ; y < height; y++) {
+			if (hasSidelights) {
+				pixel = &pixels[NUM_EDGE_PIXELS + 3 * (x * height + y)];
+			} else {
+				pixel = &pixels[3 * (x * height + y)];
+			}
 			r = *pixel++;
 			g = *pixel++;
 			g = *pixel;
@@ -210,10 +217,10 @@ uint32_t Board_ST7735::getPixelColor(uint16_t x, uint16_t y) {
   return 0; // Pixel # is out of bounds
 }
 
-
-
 // Map virtual pixels to physical pixels on the Burner Board Layout
 // Emulate a 70 x 10 rectangle matrix 
+// Optionally add a two 79 pixel (158) strips on the side 
+// as pixels 0-157 before the real board pixels start
 // Strip lengths are 31, 45, 60, 66, 70, 70, 66, 60, 45, 31
 // format is colx: virt pixel offset -> real pixel offset
 // col1: 1-19, 20-50, 51-70: 20-50->1-31
@@ -232,80 +239,117 @@ uint32_t Board_ST7735::BoardPixel(uint32_t pixel) {
   // Pixel is a hole in the map, returns 0
   newpixel = 0;
 
-  // Map linear row x column strip into strip with holes in grid
-  // to cater for pixels that are missing from the corners of the
-  // Burner Board layout
+  // Virt Pixels 701-858 are the edge pixels
+  if (hasSidelights && (pixel > 700)) {
+ 
+    pixel = pixel - 701;
 
-  //1  20-50->1-31
-  if (pixel >= 20 && pixel <=50)
-    newpixel = pixel - 19;
-  //2 83-127->76-32
-  if (pixel >= 83 && pixel <= 127)
-    newpixel = 127 - pixel + 32;
-  //3 146-205->77-136
-  if (pixel >= 146 && pixel <= 205)
-    newpixel = pixel - 146 + 77;
-  //4 213-278->202-137
-  if (pixel >= 213 && pixel <= 278)
-    newpixel = 278 - pixel + 137;
-  //5 281-350->203-272
-  if (pixel >= 281 && pixel <= 350)
-    newpixel = pixel - 281 + 203;
-  //6 351-420->342-273
-  if (pixel >= 351 && pixel <=420)
-    newpixel = 420 - pixel + 273;
-  //7 423-488->343-408
-  if (pixel >= 423 && pixel <= 488)
-    newpixel = pixel - 423 + 343;
-  //8 496-555->468-409
-  if (pixel >= 496 && pixel <= 555)
-    newpixel = 555 - pixel + 409;
-  //9 573-617->469-513
-  if (pixel >= 573 && pixel <= 617)
-    newpixel = pixel - 573 + 469;
-  //10 650-680->544-514
-  if (pixel >= 650 && pixel <= 680)
-    newpixel = 680 - pixel + 514;
+    // 1st strip of edge 
+    if (pixel < (NUM_EDGE_PIXELS / 2)) {
+      newpixel = pixel;
+    }
+
+    // 2nd strip of edge - reverse order
+    if (pixel >= (NUM_EDGE_PIXELS / 2)) {
+      newpixel = NUM_EDGE_PIXELS - 1 - (pixel - (NUM_EDGE_PIXELS / 2));
+    }
+
+    // we calc +1
+    newpixel++;
+
+  } else {
+
+      // Map linear row x column strip into strip with holes in grid
+      // to cater for pixels that are missing from the corners of the
+      // Burner Board layout
     
+      //1  20-50->1-31
+      if (pixel >= 20 && pixel <=50)
+        newpixel = pixel - 19;
+      //2 83-127->76-32
+      if (pixel >= 83 && pixel <= 127)
+        newpixel = 127 - pixel + 32;
+      //3 146-205->77-136
+      if (pixel >= 146 && pixel <= 205)
+        newpixel = pixel - 146 + 77;
+      //4 213-278->202-137
+      if (pixel >= 213 && pixel <= 278)
+        newpixel = 278 - pixel + 137;
+      //5 281-350->203-272
+      if (pixel >= 281 && pixel <= 350)
+        newpixel = pixel - 281 + 203;
+      //6 351-420->342-273
+      if (pixel >= 351 && pixel <=420)
+        newpixel = 420 - pixel + 273;
+      //7 423-488->343-408
+      if (pixel >= 423 && pixel <= 488)
+        newpixel = pixel - 423 + 343;
+      //8 496-555->468-409
+      if (pixel >= 496 && pixel <= 555)
+        newpixel = 555 - pixel + 409;
+      //9 573-617->469-513
+      if (pixel >= 573 && pixel <= 617)
+        newpixel = pixel - 573 + 469;
+      //10 650-680->544-514
+      if (pixel >= 650 && pixel <= 680)
+        newpixel = 680 - pixel + 514;
+
+    if (hasSidelights) {
+      newpixel += NUM_EDGE_PIXELS;
+    }
+  }
+
   return newpixel;
 }  
 
+
+// Functions for GFX Library
+
+// Pass 8-bit (each) R,G,B, get back 16-bit packed color
+uint16_t Board_ST7735::Color565(uint8_t r, uint8_t g, uint8_t b) {
+  return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+}
+
 // Pass 8-bit (each) R,G,B, get back 16-bit packed color
 uint32_t Color2rgb(uint16_t color) {
-	uint8_t r, g, b;
+  uint32_t r, g, b;
   uint32_t return_color;
 
   r = color & 0xf800;
-	r = r << 5;
+	r = r << (5 + 3);
 	
   g = color & 0x7e0;
-	g = g << 3;
+	g = g << (3 + 2);
 
   b = color & 0x1F;
-	b = b << 2;	
+	b = b << (0 + 3);	
 	
-	return_color = r & g & b;
+  return_color = r | g | b;
 
-  return r;
+  return return_color;
 }
 
+// Callback from GFX engine to draw pixel on the board
 void Board_ST7735::drawPixel(int16_t x, int16_t y, uint16_t color) {
 
 	// calculate x offset first
-  uint16_t offset = y % height;
+  uint16_t offset = (69 - x) % height;
   // add x offset
-  offset += x * height;
+  offset += (9 - y) * height;
   setPixelColor(offset, Color2rgb(color));
 
 }
 
-
 void Board_ST7735::print(char *string, uint8_t x, uint8_t y, uint8_t size) {
 		  setTextSize(size);
-		  setTextColor(ST7735_MAGENTA);
-			fillRect(x, y,  7 * size * strlen(string) + 1, 7 * size, ST7735_BLACK);
+		  setTextColor(Color565(255, 255, 255));
+//		  fillRect(x, y,  7 * size * strlen(string) + 1, 7 * size, Color565(0, 0, 0));
+//		  setRotation(1);
 		  setCursor(x, y);
-		  print(string);	
+		  Adafruit_GFX::print(string);	
 }
 
+void Board_ST7735::enableSidelights(boolean sl) {
+  hasSidelights = sl;
+}
 

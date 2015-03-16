@@ -110,8 +110,6 @@ char *names[] = {
   
   
 /* Helper functions */
-
-
 /* returns change in encoder state (-1,0,1) */
 int8_t read_encoder()
 {
@@ -124,12 +122,14 @@ int8_t read_encoder()
   return ( enc_states[( old_AB & 0x0f )]);
 }
 
+
 int8_t encoder_pos = 0;
 
 void mydelay(uint32_t del) {
   int i;
   int8_t enc;
   char mode[10];
+  boolean newmode = false;
   
   for (i = 0; i < del; i++) {
     delay(1);
@@ -138,16 +138,20 @@ void mydelay(uint32_t del) {
       Serial.print("Counter value: ");
       Serial.println(encoder_pos, DEC);
       encoder_pos += enc;
-      if (enc < 0)
-        enc = 0;
+      if (encoder_pos < 0)
+        encoder_pos = 0;
+      if (encoder_pos > 9)
+        encoder_pos = 9;
       clearScreen();
       sprintf(mode, "%d", encoder_pos);
       strip->print(mode, 35, 1, 1);
       strip->show();
-      delay(500);
-      clearScreen();
+      del = 300;
+      newmode = true;
     }
   }
+  if (newmode == true)
+    clearScreen();
 }
 
 
@@ -224,7 +228,7 @@ void fadeBoard() {
   uint32_t color;
   uint8_t r, g, b;
   
-    for (i=0; i < strip->numPixels(); i++) {
+    for (i=0; i < strip->numPixels() + 158; i++) {
       color = strip->getPixelColor(i);
 
       r = (color & 0x00ff0000) >> 16;
@@ -381,540 +385,6 @@ void drawY(uint8_t startx, uint8_t starty, uint8_t length, uint32_t color) {
     + ((unsigned long)B8(db2)<<16) \
     + ((unsigned long)B8(db3)<<8) \
     + B8(dlsb))
-
-
-void drawStanfordTree() {
-  uint16_t x;
-  uint16_t row;
-  // Stanford
-  uint16_t stanfordTree[] = {
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00010000),
-                B16(00,00100000),
-                B16(00,00010000),
-                B16(00,00100000),
-                B16(00,00110000),
-                B16(00,00111000),
-                B16(00,01101100),
-                B16(00,00110100),
-                B16(00,01011000),
-                B16(00,00010000),
-                B16(00,10101000),
-                B16(00,01010100),
-                B16(00,10101000),
-                B16(00,01101000),
-                B16(00,11011100),
-                B16(01,10110010),
-                B16(00,00100100),
-                B16(00,00110000),
-                B16(00,00110000),
-                B16(00,01111000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000)};
-
-  for (row = 0; row < sizeof(stanfordTree) / sizeof(uint16_t); row++) {
-    for (x = 0; x < 10; x++) {
-	if (stanfordTree[69 - row] & (1<<(x))) {
-          strip->setPixelColor(x,  row, rgbTo24BitColor(0, 158, 118));
-        }
-    }
-
-  }
-  strip->show();
-}
-
-void drawStanfordLogo() {
-  uint16_t x;
-  uint16_t row;
-  // Stanford
-  uint16_t stanfordLogo[] = {
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,11111100),
-                B16(01,11111110),
-                B16(11,11111111),
-                B16(11,11111111),
-                B16(11,10000111),
-                B16(11,10000000),
-                B16(11,10000000),
-                B16(11,11111000),
-                B16(01,11111110),
-                B16(00,11111111),
-                B16(00,11111111),
-                B16(00,00000111),
-                B16(00,00000111),
-                B16(00,00000111),
-                B16(11,11111111),
-                B16(11,11111111),
-                B16(01,11111110),
-                B16(00,11111100),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000),
-                B16(00,00000000)};
-
-//  strip->drawRect(0, 0, 70, 10, rgbTo24BitColor(140, 21, 21));
-  for (row = 0; row < sizeof(stanfordLogo) / sizeof(uint16_t); row++) {
-    for (x = 0; x < 10; x++) {
-      strip->setPixelColor(9 - x,  row, stanfordLogo[69 - row] & (1<<(x))? rgbTo24BitColor(140, 21, 21): rgbTo24BitColor(255, 255, 255));
-    }
-  }
-  strip->show();
-}
-
-
-
-void drawStanford() {
-  uint16_t x;
-  uint16_t row;
-  // Stanford
-  uint16_t stanford[] = {
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,01111000),
-       B16(00,10000100),
-       B16(00,11111100),
-       B16(00,11111100),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,01101100),
-       B16(00,11010000),
-       B16(00,11111100),
-       B16(00,11111100),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,01111000),
-       B16(00,10000100),
-       B16(00,11111100),
-       B16(00,01111000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,11010000),
-       B16(00,11010000),
-       B16(00,11111100),
-       B16(00,11111100),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,11111100),
-       B16(00,00011000),
-       B16(00,01100000),
-       B16(00,11111100),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,01111100),
-       B16(00,10010000),
-       B16(00,11111100),
-       B16(00,01111100),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,11000000),
-       B16(00,11111100),
-       B16(00,11111100),
-       B16(00,11000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,11011000),
-       B16(00,11011100),
-       B16(00,11101100),
-       B16(00,01101100),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000),
-       B16(00,00000000)};
-
-//  strip->drawRect(0, 0, 70, 10, rgbTo24BitColor(140, 21, 21));
-  for (row = 0; row < sizeof(stanford) / sizeof(uint16_t); row++) {
-    for (x = 0; x < 10; x++) {
-      strip->setPixelColor(x,  row, stanford[row] & (1<<(x))? rgbTo24BitColor(64, 64, 64): rgbTo24BitColor(14, 2, 2));
-    }
-  }
-  strip->show();
-}
-
-
-void drawDistrikt() {
-  uint16_t x;
-  uint16_t row;
-
-  // DISTRIKT
-  uint16_t distrikt[] = {
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,11000000),
-    B16(00,11111100),
-    B16(00,11111100),
-    B16(00,11000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,11001100),
-    B16(00,00110000),
-    B16(00,11111100),
-    B16(00,11111100),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,11111100),
-    B16(00,11111100),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,01101100),
-    B16(00,11010000),
-    B16(00,11010000),
-    B16(00,11111100),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,11000000),
-    B16(00,11111100),
-    B16(00,11111100),
-    B16(00,11000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,01011000),
-    B16(00,11011000),
-    B16(00,11101100),
-    B16(00,01101100),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,11111100),
-    B16(00,11111100),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,01111000),
-    B16(00,10000100),
-    B16(00,11111100),
-    B16(00,11111100),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000)};
-
-  clearScreen();
-  for (row = 0; row < sizeof(distrikt) / sizeof(uint16_t); row++) {
-    for (x = 0; x < 10; x++) {
-      strip->setPixelColor(x,  row, distrikt[row] & (1<<(x))? rgbTo24BitColor(255, 255, 255): rgbTo24BitColor(0, 0, 0));
-    }
-  }
-  strip->show();
-}
-
-void drawVMW() {
-  uint16_t x;
-  uint16_t row;
-
-  // VMW
-  uint16_t vmw[] = {
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,01100100),
-    B16(00,11110110),
-    B16(01,10010010),
-    B16(01,00010010),
-    B16(01,00010010),
-    B16(00,10010110),
-    B16(00,01111100),
-    B16(01,00000000),
-    B16(01,10000000),
-    B16(00,10000000),
-    B16(00,11111110),
-    B16(01,11111110),
-    B16(00,00000000),
-    B16(00,01111110),
-    B16(00,10100100),
-    B16(01,00100010),
-    B16(01,00100010),
-    B16(01,00100010),
-    B16(00,10010110),
-    B16(00,00001100),
-    B16(01,11000000),
-    B16(00,11111000),
-    B16(00,00001110),
-    B16(00,00011100),
-    B16(00,01110000),
-    B16(01,11000000),
-    B16(00,01110000),
-    B16(00,00011100),
-    B16(00,00001110),
-    B16(00,11111000),
-    B16(01,11000000),
-    B16(00,00000000),
-    B16(00,11111110),
-    B16(01,11111110),
-    B16(01,10000000),
-    B16(01,10000000),
-    B16(00,11111110),
-    B16(00,11111110),
-    B16(01,11000000),
-    B16(01,10000000),
-    B16(00,10000000),
-    B16(00,11111110),
-    B16(01,11111110),
-    B16(01,10000000),
-    B16(01,11000000),
-    B16(00,11111000),
-    B16(00,00111100),
-    B16(00,00001110),
-    B16(00,00111100),
-    B16(00,11111000),
-    B16(01,11000000),
-    B16(00,10000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000)};
-
-  clearScreen();
-  for (row = 0; row < sizeof(vmw) / sizeof(uint16_t); row++) {
-    for (x = 0; x < 10; x++) {
-      strip->setPixelColor(x,  row, vmw[row] & (1<<(x))? rgbTo24BitColor(255, 255, 255): rgbTo24BitColor(0, 0, 0));
-    }
-  }
-  strip->show();
-}
-
-
-void drawTheMan(uint32_t color) {
-  uint16_t x;
-  uint16_t row;
-
-  uint16_t the_man[] = {
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(10,00000001),
-    B16(11,00000011),
-    B16(11,00000011),
-    B16(01,10000110),
-    B16(01,10000110),
-    B16(01,10000110),
-    B16(01,10000110),
-    B16(00,11001100),
-    B16(00,11001100),
-    B16(00,11001100),
-    B16(00,11001100),
-    B16(00,11001100),
-    B16(00,11001100),
-    B16(00,01001000),
-    B16(00,01001000),
-    B16(00,01001000),
-    B16(00,01001000),
-    B16(00,01001000),
-    B16(00,01001000),
-    B16(00,11001100),
-    B16(00,11001100),
-    B16(00,11001100),
-    B16(00,11001100),
-    B16(00,11001100),
-    B16(00,10000100),
-    B16(01,10000110),
-    B16(01,10000110),
-    B16(01,10110110),
-    B16(11,00110011),
-    B16(11,01111011),
-    B16(10,01111001),
-    B16(00,00110000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000),
-    B16(00,00000000)};
-
-  clearScreen();
-  for (row = 0; row < sizeof(the_man) / sizeof(uint16_t); row++) {
-    for (x = 0; x < 10; x++) {
-      strip->setPixelColor(x,  row, the_man[row] & (1<<(x))? color: rgbTo24BitColor(0, 0, 0));
-    }
-  }
-  strip->show();
-}
-
-void cycleTheMan(){
-  uint32_t color;
-  uint8_t the_red;
-  uint8_t the_green;
-  uint8_t the_blue;
-  uint8_t the_cycle;
-  the_red = 100;
-  the_green = 100;
-  the_blue = 100;
-  wheel_color = 255;
-  for (the_cycle = 0; the_cycle < 100; the_cycle++) {
-        the_red = random(2,4)%2 == 0 ? rgbTo24BitColor(80, 80, 80): wheel(wheel_color); //Chance of 1/3rd 
-        the_green = random(2,4)%2 == 0 ? rgbTo24BitColor(80, 80, 80): wheel(wheel_color); //Chance of 1/3rd  
-        the_blue = random(2,4)%2 == 0 ? rgbTo24BitColor(80, 80, 80): wheel(wheel_color); //Chance of 1/3rd 
-        drawTheMan(rgbTo24BitColor(the_red, the_green, the_blue));
-        mydelay(20);
-  }
-}
 
 
 
@@ -1077,8 +547,31 @@ void drawHeaderLunarian() {
   strip->show();
 }
 
+void drawHeaderXmas() {
+  uint32_t color;
+  uint16_t x;
+
+  for (x = 0; x < 10; x++) {
+    //   color = random(2,4)%2 == 0 ? rgbTo24BitColor(0,0,0) : rgbTo24BitColor(0, 255, 0); //Chance of 1/3rd 
+    color = random(2,8)%2 == 0 ? rgbTo24BitColor(10, 10, 10): rgbTo24BitColor(128, 0, 0); //Chance of 1/3rd 
+    //   color = random(2,4)%2 == 0 ? rgbTo24BitColor(0, 0, 0): rgbTo24BitColor(255, 255, 255); //Chance of 1/3rd 
+    //   color =  rgbTo24BitColor(255, 255, 255); //Chance of 1/3rd 
+    strip->setPixelColor(x, 69, color);
+    // Ripple down the side lights with the same color as the edges
+    if (x == 0) {
+        setSideLight(0, 78, color);
+    }
+    if (x == 9) {
+        setSideLight(1, 78, color);
+    }
+    wheel_color++;
+  }
+  strip->show();
+}
+
 static int pd_x;
 static int pd_y;
+static int pd_side;
 
 void drawPixelDust() {
   uint32_t color;
@@ -1095,9 +588,13 @@ void drawPixelDust() {
   strip->setPixelColor(x+1, y, color);
   strip->setPixelColor(x, y+1, color);
   strip->setPixelColor(x+1, y+1, color);
-  strip->show();
   pd_x = x;
   pd_y = y;
+  x = random(158);
+  strip->setPixelColor(700 + pd_side, rgbTo24BitColor(0, 0, 0));
+  strip->setPixelColor(700 + x, color);
+  pd_side = x;
+  strip->show();
 }
 
 void drawPixelDust2() {
@@ -1110,6 +607,8 @@ void drawPixelDust2() {
   strip->setPixelColor(x, y, color);
   pd_x = x;
   pd_y = y;
+  x = random(158);
+  strip->setPixelColor(700 + x, color);
 }
 
 void drawStatic() {
@@ -1135,13 +634,17 @@ static int flake_col = 0;
 	
 void drawSnowFlakes() {
 	int x;
+  uint32_t color;
 
-// Blue Background
-  for (x = 0; x < 10; x++) {
-		strip->setPixelColor(x, 69, rgbTo24BitColor(0, 0, 20));
-	}
 
-	switch(flake_row) {
+       // Blue Background
+       for (x = 0; x < 10; x++) {
+	 	strip->setPixelColor(x, 69, rgbTo24BitColor(0, 0, 20));
+       }
+       setSideLight(0, 78, rgbTo24BitColor(0, 0, 20));
+       setSideLight(1, 78, rgbTo24BitColor(0, 0, 20));
+
+       switch(flake_row) {
 		case 0:
 		flake_col = random() % 8 + 1;
 		strip->setPixelColor(flake_col, 69, rgbTo24BitColor(64, 64, 64));
@@ -1160,7 +663,7 @@ void drawSnowFlakes() {
 		case 3:
 		break;
 
-    default:
+                default:
 		break;
 	}
 	
@@ -1168,6 +671,13 @@ void drawSnowFlakes() {
 	if (flake_row > 4) {
 		flake_row = 0;
 	}
+        color = random(2,8)%2 == 0 ? rgbTo24BitColor(0, 0, 50): rgbTo24BitColor(128, 128, 128); //Chance of 1/3rd 
+
+        // Ripple down the side lights with the same color as the edges
+        setSideLight(0, 78, color);
+        setSideLight(1, 78, color);
+        strip->show();
+
 }
 
 void drawCenter() {
@@ -1378,6 +888,7 @@ void setup() {
   pinMode(SRELAY_PIN, OUTPUT);
   pinMode(LRELAY_PIN, OUTPUT);
   digitalWrite(SRELAY_PIN, HIGH);
+  digitalWrite(LRELAY_PIN, HIGH);
   
 // ID Pins  
   pinMode(ID_0, INPUT);
@@ -1406,12 +917,14 @@ void setup() {
    */
 
   boardId = readID();
-  
-  if (boardId == 0 || boardId == 2) {
+  /*
+  if (boardId == 0 || boardId == 1 || boardId == 2 || boardId == 3 || boardId == 4 || boardId == 7) {
     strip = new Board_WS2801((uint16_t)10, (uint16_t)70, WS2801_RGB, (boolean)true);
   } else {
     strip = new Board_WS2801((uint16_t)10, (uint16_t)70, WS2801_RGB, (boolean)false);
   }
+  */
+  strip = new Board_WS2801((uint16_t)10, (uint16_t)70, WS2801_RGB, (boolean)true);
 
   // Space Invader Character
   // 1st animation for the character
@@ -1493,6 +1006,13 @@ void loop_matrix()
   mydelay(50);
 }
 
+void loop_snowflakes()
+{
+  drawSnowFlakes();
+  shiftMatrixLines();
+  mydelay(50);
+}
+
 void loop_matrixfast()
 {
   drawHeader();
@@ -1508,6 +1028,12 @@ void loop_lunarian()
   mydelay(1);
 }
 
+void loop_xmas()
+{
+  drawHeaderXmas();
+  shiftMatrixLines(); 
+  mydelay(1);
+}
 
 void loop_battery()
 {
@@ -1519,7 +1045,7 @@ void loop_battery()
 
 void loop_distrikt()
 {
-  drawDistrikt();
+  //drawDistrikt();
   mydelay(10);
 }
 
@@ -1528,7 +1054,7 @@ void loop_stanford(uint8_t enc)
   int i;
   
       for (i = 0; i < 20  && encoder_pos == enc; i++) {
-        drawStanford();
+        //drawStanford();
         strip->show();
         mydelay(300);
         fillScreen(rgbTo24BitColor(14, 2, 2u));
@@ -1660,7 +1186,7 @@ void loop() {
        break;
        
      case 3:
-       loop_distrikt();
+       loop_snowflakes();
        break;
        
      case 4:
@@ -1676,7 +1202,8 @@ void loop() {
        break;
 
      case 7:
-       loop_stanford(7);
+       loop_xmas();
+//       loop_stanford(7);
        break;
        
      case 8:
@@ -1695,10 +1222,15 @@ void loop() {
 }
 
 
+void screenHook() {
+//  checkButton();
+}
+
+#ifdef LIGHTCONTROL
 
 
 uint16_t buttonPress = 0;
-bool lightState = false;
+bool lightState = true;
 
 #define HOLD_COUNT 30
 
@@ -1748,10 +1280,8 @@ void checkButton() {
 #endif
 }
 
-void screenHook() {
-  checkButton();
-}
 
+#endif
 
 #ifdef CRAP
 

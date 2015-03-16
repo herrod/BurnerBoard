@@ -32,7 +32,8 @@ class Board_ST7735  : public Adafruit_GFX {
   Board_ST7735();
   // Release memory (as needed):
   ~Board_ST7735();
-
+  // GFX Library
+  uint16_t Color565(uint8_t r, uint8_t g, uint8_t b);
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 
   // These MAY be overridden by the subclass to provide device-specific
@@ -59,7 +60,8 @@ class Board_ST7735  : public Adafruit_GFX {
     updatePins(void), // Change pins, hardware SPI
     updateLength(uint16_t n), // Change strand length
     updateOrder(uint8_t order), // Change data order
-  	print(char *string, uint8_t x, uint8_t y, uint8_t size);
+    enableSidelights(boolean haslights), // Has side lights
+    print(char *string, uint8_t x, uint8_t y, uint8_t size);
 
 
   uint16_t
@@ -89,7 +91,9 @@ class Board_ST7735  : public Adafruit_GFX {
     startSPI(void);
   boolean
     hardwareSPI, // If 'true', using hardware SPI
-    begun;       // If 'true', begin() method was previously invoked
+    begun,       // If 'true', begin() method was previously invoked
+    hasSidelights;       // If 'true', extra lights on side
+
   uint32_t
     BoardPixel(uint32_t pixel);
 };
