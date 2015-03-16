@@ -1,0 +1,93 @@
+<html>
+<canvas id="board_canvas" width="510" height="220" style="background: #505050;"style="border:1px solid #000000;"> </canvas>
+
+
+
+<style> [controls] { width:50%; margin-top:10.25em; margin-bottom:10.25em; }
+</style>
+<head>
+
+	<link href="stylesheets/pixie.css" media="screen" rel="stylesheet"
+	type="text/css" />
+
+	<script src="../js/emulator.js"></script>
+	<script src="../js/board.js"></script>
+	<script src="../js/burnerboard.js"></script>
+
+	<script src="../js/jquery.js" type="text/javascript"></script>
+	<script src="../js/jqcolor.js" type="text/javascript"></script>
+	<script src="../js/jquery.hotkeys-0.7.9.min.js" type="text/javascript"></script>
+	<script src="../js/pixie.js" type="text/javascript"></script>
+
+	<script type="text/javascript">
+	(function($) {
+		$(function() {
+			function rand(n) {
+				return Math.floor(Math.random()*n);
+			}
+
+			$('#pixie').pixie({
+				width: 79,
+				height: 12,
+				layers: 10,
+				initializer: function(canvas) {
+					canvas.addAction({
+						name: "Alert",
+						perform: function() {
+							alert("Hi");
+						}
+					});
+
+					canvas.addAction({
+						name: "Random Fill",
+						perform: function(canvas) {
+							canvas.eachPixel(function() {
+								this.color('#' + [
+								canvas.toHex(rand(255)),
+								canvas.toHex(rand(255)),
+								canvas.toHex(rand(255))
+								].join(''));
+							});
+						}
+					});
+
+					var partyPaint = function() {
+						this.color(this.canvas.color(rand(2) === 0));
+
+						$.each(this.canvas.getNeighbors(this.x, this.y), function(i, neighbor) {
+							if(neighbor) {
+								neighbor.color(neighbor.canvas.color(rand(2) === 0));
+							}
+						});
+					}
+
+					canvas.addTool({
+						name: "Party Brush",
+						hotkeys: ['1'],
+						mousedown: partyPaint,
+						mouseenter: partyPaint
+					});
+				}
+			});
+		});
+		})(jQuery);
+		</script>
+</head>
+<body>
+		<div id='board'>
+		</div>
+		<div id='page'>
+			<div id='content'>
+				<div id="controls"> <input type="button" id="mode_up"
+					onclick="button_mode_up()" value="Mode Up"> <input type="button"
+					id="mode_down" onclick="button_mode_down()" value="Mode Down"></div>
+
+
+					<div id='pixie'></div>
+
+				</div>
+			</div>
+		</body>
+
+		</html>
+
