@@ -9,12 +9,12 @@
 #include <pthread.h>
 #include <errno.h>
 
-#define FREQUENCY RF69_433MHZ
-#define NODEID 1
+#define FREQUENCY RF69_915MHZ
+#define NODEID 2
 #define NETWORKID 100
 #define TXPOWER 31
 // A 16 bit password
-#define CRYPTPASS "0123456789012345"
+#define CRYPTPASS "sampleEncryptKey"
 
 char received[63];
 int rssi;

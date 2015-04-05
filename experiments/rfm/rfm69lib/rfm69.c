@@ -18,6 +18,7 @@
 //#define SPI_SPEED 1000000
 #define SPI_SPEED 2000000
 #define SPI_DEVICE 0
+#define _interruptPin
 
 //char DATA[MAX_DATA_LEN];
 char _mode;       // current transceiver state
@@ -67,7 +68,7 @@ const char CONFIG[][2] = {
 
     // RXBW defaults are { REG_RXBW, RF_RXBW_DCCFREQ_010 | RF_RXBW_MANT_24 | RF_RXBW_EXP_5} (RxBw: 10.4khz)
     /* 0x19 */ { REG_RXBW, RF_RXBW_DCCFREQ_010 | RF_RXBW_MANT_16 | RF_RXBW_EXP_2 }, //(BitRate < 2 * RxBw)
-    /* 0x25 */ ////{ REG_DIOMAPPING1, RF_DIOMAPPING1_DIO0_01 }, //DIO0 is the only IRQ we're using
+    /* 0x25 */ { REG_DIOMAPPING1, RF_DIOMAPPING1_DIO0_01 }, //DIO0 is the only IRQ we're using
     /* 0x29 */ { REG_RSSITHRESH, 220 }, //must be set to dBm = (-Sensitivity / 2) - default is 0xE4=228 so -114dBm
     ///* 0x2d */ { REG_PREAMBLELSB, RF_PREAMBLESIZE_LSB_VALUE } // default 3 preamble bytes 0xAAAAAA
     /* 0x2e */ { REG_SYNCCONFIG, RF_SYNC_ON | RF_SYNC_FIFOFILL_AUTO | RF_SYNC_SIZE_2 | RF_SYNC_TOL_0 },
@@ -84,10 +85,12 @@ const char CONFIG[][2] = {
   };
 
   // Initialize SPI device 0
+  printf("SPIsetup...\n");
   if(wiringPiSPISetup(SPI_DEVICE, SPI_SPEED) < 0) {
     fprintf(stderr, "Unable to open SPI device\n\r");
     exit(1);
   }
+  printf("SPIsetup done...\n");
 
   do rfm69_writeReg(REG_SYNCVALUE1, 0xaa); while(rfm69_readReg(REG_SYNCVALUE1) != 0xaa);
   do rfm69_writeReg(REG_SYNCVALUE1, 0x55); while(rfm69_readReg(REG_SYNCVALUE1) != 0x55);
@@ -124,8 +127,10 @@ char rfm69_readReg(char addr) {
   char thedata[2];
   thedata[0] = addr & 0x7F;
   thedata[1] = 0;
-
+  
+  printf("readReg(%x)\n", addr);
   wiringPiSPIDataRW(SPI_DEVICE, thedata, 2);
+  printf("readReg(%x) = %d\n", addr, thedata[1]);
   usleep(5);
 
   return thedata[1];
@@ -260,16 +265,16 @@ void rfm69_receive(void) {
   while(1) {
     if (rfm69_readReg(REG_IRQFLAGS2) & RF_IRQFLAGS2_PAYLOADREADY)
       rfm69_writeReg(REG_PACKETCONFIG2, (rfm69_readReg(REG_PACKETCONFIG2) & 0xFB) | RF_PACKET2_RXRESTART); // avoid RX deadlocks
-    ////writeReg(REG_DIOMAPPING1, RF_DIOMAPPING1_DIO0_01); //set DIO0 to "PAYLOADREADY" in receive mode
+    writeReg(REG_DIOMAPPING1, RF_DIOMAPPING1_DIO0_01); //set DIO0 to "PAYLOADREADY" in receive mode
     rfm69_setMode(RF69_MODE_RX);
 
-    //printf("Ya estoy en modo RX\n\r");
+    printf("Ya estoy en modo RX\n\r");
 
     // Receive Data until timeout (aprox 2s)
     while((rfm69_readReg(REG_IRQFLAGS2) & RF_IRQFLAGS2_PAYLOADREADY) == 0) {
       timeout--;
       if(timeout == 0) {
-        //printf("Timeout!\n\r");
+        printf("Timeout!\n\r");
         rfm69_setMode(RF69_MODE_STANDBY);
         return;
       }
@@ -291,8 +296,8 @@ void rfm69_receive(void) {
     PAYLOADLEN = PAYLOADLEN > 66 ? 66 : PAYLOADLEN;
     TARGETID = thedata[2];
 
-    //printf("Payload length: %i\n\r", PAYLOADLEN);
-    //printf("Target id: %i\n\r", TARGETID);
+    printf("Payload length: %i\n\r", PAYLOADLEN);
+    printf("Target id: %i\n\r", TARGETID);
 
     if(!(_promiscuousMode || TARGETID==_address || TARGETID==RF69_BROADCAST_ADDR)) {//match this node's address, or $
        PAYLOADLEN = 0;
@@ -311,9 +316,9 @@ void rfm69_receive(void) {
        SENDERID = thedata[1];
        CTLBYTE = thedata[2];
 
-       //printf("Sender id: %i\n\r", thedata[1]);
-       //printf("CTLbyte: %i\n\r", thedata[2]);
-       //printf("Data: ...\n\r");
+       printf("Sender id: %i\n\r", thedata[1]);
+       printf("CTLbyte: %i\n\r", thedata[2]);
+       printf("Data: ...\n\r");
        for(i = 0; i < DATALEN; i++) {
          //printf("%c\n\r", thedata[i+3]);
          DATA[i] = thedata[i+3];
@@ -359,7 +364,7 @@ char rfm69_getSenderId(void) {
 void rfm69_send(char toAddress, const void* buffer, char bufferSize, char requestACK) {
   rfm69_writeReg(REG_PACKETCONFIG2, (rfm69_readReg(REG_PACKETCONFIG2) & 0xFB) | RF_PACKET2_RXRESTART); // avoid RX deadlocks
   // Avoiding sending when another node is sending now
-  //printf("I will check if I can send\n\r");
+  printf("I will check if I can send\n\r");
   // I don't know why this function doesn't work
   //while(rfm69_canSend() != 0);
   rfm69_sendFrame(toAddress, buffer, bufferSize, requestACK, 0x00);
@@ -369,14 +374,14 @@ void rfm69_sendFrame(char toAddress, const void* buffer, char bufferSize, char r
   char thedata[63];
   char i;
 
-  //printf("Prepared to send a new frame\n\r");
+  printf("Prepared to send a new frame\n\r");
 
   rfm69_setMode(RF69_MODE_STANDBY); //turn off receiver to prevent reception while filling fifo
   while ((rfm69_readReg(REG_IRQFLAGS1) & RF_IRQFLAGS1_MODEREADY) == 0x00); // Wait for ModeReady
-  ////writeReg(REG_DIOMAPPING1, RF_DIOMAPPING1_DIO0_00); // DIO0 is "Packet Sent"
+  writeReg(REG_DIOMAPPING1, RF_DIOMAPPING1_DIO0_00); // DIO0 is "Packet Sent"
   if (bufferSize > MAX_DATA_LEN) bufferSize = MAX_DATA_LEN;
 
-  //printf("Preparing the packet\n\r");
+  printf("Preparing the packet\n\r");
 
   for(i = 0; i < 63; i++) thedata[i] = 0;
 
@@ -391,16 +396,16 @@ void rfm69_sendFrame(char toAddress, const void* buffer, char bufferSize, char r
     thedata[i + 5] = ((char*)buffer)[i];
   }
 
-  //printf("Sending by SPI\n\r");
+  printf("Sending by SPI\n\r");
 
   wiringPiSPIDataRW(SPI_DEVICE, thedata, bufferSize + 5);
 
   /* no need to wait for transmit mode to be ready since its handled by the radio */
   rfm69_setMode(RF69_MODE_TX);
-  ////while (digitalRead(_interruptPin) == 0); //wait for DIO0 to turn HIGH signalling transmission finish
-  ////delay(10);
-  //printf("Changing to TX mode\n\r");
+  while (digitalRead(_interruptPin) == 0); //wait for DIO0 to turn HIGH signalling transmission finish
+  delay(10);
+  printf("Changing to TX mode\n\r");
   while (!(rfm69_readReg(REG_IRQFLAGS2) & RF_IRQFLAGS2_PACKETSENT)); // Wait for ModeReady
   rfm69_setMode(RF69_MODE_STANDBY);
-  //printf("Done, Changing to standby mode\n\r");
+  printf("Done, Changing to standby mode\n\r");
 }
